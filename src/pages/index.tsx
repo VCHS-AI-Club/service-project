@@ -24,7 +24,9 @@ const Home: NextPage = () => {
         </h1>
         <div className="bg-purple-300 p-4 rounded">
           {session && <button onClick={() => signOut()}>Sign Out</button>}
-          {!session && <button onClick={() => signIn("google")}>Sign In</button>}
+          {!session && (
+            <button onClick={() => signIn("google")}>Sign In</button>
+          )}
         </div>
       </main>
     </>
