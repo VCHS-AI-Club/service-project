@@ -1,6 +1,6 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { NextPage } from "next";
-import React from "react";
+import React, { useState } from "react";
 
 type Opp = {
   name: string;
@@ -18,7 +18,20 @@ const Service: NextPage = () => {
       return arr;
     }
   );
-  console.log("data", data);
+  const [name, setName] = useState("name");
+  const [desc, setDesc] = useState("value");
+  console.log("data", JSON.stringify(data));
+  const { mutate } = useMutation(
+    (oppPost: { name: string; desc: string }) => {
+      console.log(name, desc, JSON.stringify(oppPost), "name value opp");
+      return fetch("http://localhost:8000/items/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(oppPost),
+      });
+    },
+    { onSuccess: () => queryClient.invalidateQueries(["opps"]) }
+  );
 
   return (
     <>
@@ -29,7 +42,7 @@ const Service: NextPage = () => {
       </h1>
       <div className="flex flex-col px-32 items-center gap-4">
         {data?.map((opp) => (
-          <ServiceCard opp={opp} />
+          <ServiceCard opp={opp} key={opp.id} />
         ))}
         <button
           onClick={() => queryClient.invalidateQueries()}
@@ -38,6 +51,19 @@ const Service: NextPage = () => {
           Re-Fetch
         </button>
       </div>
+      <div className="bg-pink-50">
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          type="text"
+          value={desc}
+          onChange={(e) => setDesc(e.target.value)}
+        />
+      </div>
+      <button onClick={() => mutate({ name, desc })}>Create New Task</button>
     </>
   );
 };
