@@ -23,7 +23,6 @@ const Service: NextPage = () => {
   console.log("data", JSON.stringify(data));
   const { mutate } = useMutation(
     (oppPost: { name: string; desc: string }) => {
-      console.log(name, desc, JSON.stringify(oppPost), "name value opp");
       return fetch("http://localhost:8000/items/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -45,7 +44,7 @@ const Service: NextPage = () => {
           <ServiceCard opp={opp} key={opp.id} />
         ))}
         <button
-          onClick={() => queryClient.invalidateQueries()}
+          onClick={() => queryClient.invalidateQueries(["opps"])}
           className="bg-purple-300 rounded"
         >
           Re-Fetch
@@ -69,8 +68,18 @@ const Service: NextPage = () => {
 };
 
 const ServiceCard: React.FC<{ opp: Opp }> = ({ opp: { name, desc, id } }) => {
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation(
+    (del: { id: number }) => {
+      return fetch(`http://localhost:8000/items/${del.id}`, {
+        method: "DELETE",
+      });
+    },
+    {
+      onSuccess: () => queryClient.invalidateQueries(["opps"]),
+    }
+  );
   return (
-    // <article className="p-6 max-w-sm bg-white rounded-lg border border-gray-200 shadow-md  dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 flex flex-row justify-end">
     <article className="p-6 bg-white rounded-lg border border-gray-200 shadow-md  dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 flex justify-between w-96">
       <div>
         <h2 className="text-gray-50">
@@ -78,7 +87,8 @@ const ServiceCard: React.FC<{ opp: Opp }> = ({ opp: { name, desc, id } }) => {
         </h2>
         <p className="text-gray-300 break-words">{desc}</p>
       </div>
-      <div className=" flex items-center justify-center">
+      <div className=" flex items-center justify-center flex-col">
+        <button className="text-red-500" onClick={() => deleteMutation.mutate({id})}>X</button>
         <p className="text-green-400">80%</p>
       </div>
     </article>
