@@ -88,7 +88,12 @@ const ServiceCard: React.FC<{ opp: Opp }> = ({ opp: { name, desc, id } }) => {
         <p className="text-gray-300 break-words">{desc}</p>
       </div>
       <div className=" flex items-center justify-center flex-col">
-        <button className="text-red-500" onClick={() => deleteMutation.mutate({id})}>X</button>
+        <button
+          className="text-red-500"
+          onClick={() => deleteMutation.mutate({ id })}
+        >
+          X
+        </button>
         <p className="text-green-400">80%</p>
       </div>
     </article>

@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Link from "next/link";
 import Image from "next/image";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import { LocalizationProvider } from "@mui/x-date-pickers";
 
 const NavBar = () => {
   const { data: session, status } = useSession();
@@ -17,6 +19,12 @@ const NavBar = () => {
             <Link href="/">
               <a className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                 Home
+              </a>
+            </Link>{" "}
+
+            <Link href="/admin/create">
+              <a className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                Create
               </a>
             </Link>{" "}
             <Link href="/service">
@@ -41,7 +49,10 @@ const NavBar = () => {
           </div>
         )}
         {session?.user?.image && (
-          <Image src={session?.user?.image} width="36" height="1" />
+          <>
+            <Image src={session?.user?.image} width="36" height="1" />
+            <div className="text-white">{session?.user?.id}</div>
+          </>
         )}
       </div>
     </nav>
@@ -56,9 +67,11 @@ const MyApp: AppType = ({
   return (
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
-        <NavBar />
-        <Component {...pageProps} />
-        <ReactQueryDevtools initialIsOpen={false} />
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <NavBar />
+          <Component {...pageProps} />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </LocalizationProvider>
       </QueryClientProvider>
     </SessionProvider>
   );
