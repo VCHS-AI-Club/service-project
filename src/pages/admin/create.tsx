@@ -9,19 +9,37 @@ import usePlacesAutocomplete, {
   getLatLng,
 } from "use-places-autocomplete";
 import useOnclickOutside from "react-cool-onclickoutside";
-import {env} from "../../env/client.mjs"
-import `https://maps.googleapis.com/maps/api/js?key=${env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`;
-import {useMutation} from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import Script from "next/script";
+import moment, { Moment } from "moment";
+import { Loader } from "@googlemaps/js-api-loader";
+import { env } from "../../env/client.mjs";
 
 type FormData = {
   name: string;
-  description: string;
-  date: Date;
-  location: { lat: number; lon: number };
+  desc: string;
+  start: Moment;
+  end: Moment;
+};
+type Opp = {
+  name: string;
+  desc: string;
+  lat: number;
+  lon: number;
+  start: number;
+  end: number;
 };
 
-const PlacesAutocomplete = () => {
+const PlacesAutocomplete = ({
+  maps,
+  setLoc,
+}: {
+  maps: typeof google.maps | null;
+  setLoc: ({ lat, lon }: { lat: number; lon: number }) => void;
+}) => {
   // https://hackernoon.com/create-your-reactjs-address-autocomplete-component-in-10-minutes-ws2j33ej
+  if (!maps) return <div />; // TODO: Add spinner maybe
   const {
     ready,
     value,
@@ -30,7 +48,7 @@ const PlacesAutocomplete = () => {
     clearSuggestions,
   } = usePlacesAutocomplete({
     requestOptions: {
-      /* Define search scope here */
+      googleMaps: maps, // @ts-ignore: lib uses `any` for some reason
     },
     debounce: 300,
   });
@@ -40,13 +58,15 @@ const PlacesAutocomplete = () => {
     clearSuggestions();
   });
 
-  const handleInput = (e) => {
+  const handleInput = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     // Update the keyword of the input element
     setValue(e.target.value);
   };
 
   const handleSelect =
-    ({ description }) =>
+    ({ description }: { description: string }) =>
     () => {
       // When user selects a place, we can replace the keyword without request data from API
       // by setting the second parameter to "false"
@@ -55,8 +75,11 @@ const PlacesAutocomplete = () => {
 
       // Get latitude and longitude via utility functions
       getGeocode({ address: description }).then((results) => {
-        const { lat, lng } = getLatLng(results[0]);
-        console.log("📍 Coordinates: ", { lat, lng });
+        if (results[0]) {
+          const { lat, lng: lon } = getLatLng(results[0]);
+          setLoc({ lat, lon });
+          console.log("📍 Coordinates: ", { lat, lon });
+        }
       });
     };
 
@@ -75,7 +98,7 @@ const PlacesAutocomplete = () => {
     });
 
   return (
-    <div ref={ref} className="inline">
+    <div ref={ref} className="items-center justify-center flex flex-col">
       <TextField
         value={value}
         onChange={handleInput}
@@ -89,52 +112,95 @@ const PlacesAutocomplete = () => {
 };
 
 const Create: NextPage = () => {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
-  const { register, handleSubmit, control } = useForm<FormData>();
-
-  const {} = useMutation();
-
   if (status === "unauthenticated") {
     router.push("/");
   }
 
+  const { register, handleSubmit, control } = useForm<FormData>();
+  const [loc, setLoc] = useState<{ lat: number; lon: number }>({
+    lat: 0,
+    lon: 0,
+  });
+
+  const [maps, setMaps] = useState<typeof google.maps | null>(null);
+  const { mutate } = useMutation(async (newOpp: Opp) => {
+    console.log(newOpp);
+    console.log(JSON.stringify(newOpp));
+    // return await fetch("https://localhost:8080/opp", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({start: newOpp.start.toISOString(), newOpp}),
+    // });
+  });
+
   const onSubmit = (data: FormData) => {
-    console.log(data.date);
+    mutate({ ...data, start: data.start.unix(), end: data.end.unix(), ...loc });
   };
+
+  useEffect(() => {
+    const loader = new Loader({
+      apiKey: env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY, 
+      version: "weekly",
+      libraries: ["places"],
+    });
+    loader.load().then(() => {
+      setMaps(window.google.maps);
+    });
+  });
 
   return (
     <>
       <div>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="p-8 flex flex-col items-center content-center gap-4">
-            <TextField label="name" {...register("name")} className="block" />
+          <div className="py-8 px-96 flex flex-col items-center content-center gap-4">
+            <div className="flex flex-row justify-between gap-4">
+              <TextField label="name" {...register("name")} className="block" />
+              <Controller
+                name="start"
+                control={control}
+                defaultValue={moment()}
+                render={({ field }) => (
+                  <DateTimePicker
+                    {...field}
+                    renderInput={(props) => (
+                      <TextField
+                        {...props}
+                        className="block"
+                        label="start time"
+                      />
+                    )}
+                  />
+                )}
+              />
+              <Controller
+                name="end"
+                control={control}
+                defaultValue={moment()}
+                render={({ field }) => (
+                  <DateTimePicker
+                    {...field}
+                    renderInput={(props) => (
+                      <TextField
+                        {...props}
+                        className="block"
+                        label="end time"
+                      />
+                    )}
+                  />
+                )}
+              />
+            </div>
             <TextField
               label="description"
-              {...register("description")}
+              {...register("desc")}
               className="block"
+              multiline
+              fullWidth
+              // rows={10}
             />
-            <TextField
-              label="location"
-              {...register("location")}
-              className="block"
-            />
-
-            <Controller
-              name="date"
-              control={control}
-              defaultValue={new Date()}
-              render={({ field }) => (
-                <DateTimePicker
-                  {...field}
-                  renderInput={(props) => (
-                    <TextField {...props} className="block" />
-                  )}
-                />
-              )}
-            />
-
-            <PlacesAutocomplete />
+            {maps && <PlacesAutocomplete maps={maps} setLoc={setLoc} />}{" "}
             <Button
               className="bg-blue-500"
               type="submit"
