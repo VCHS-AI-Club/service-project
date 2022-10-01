@@ -3,17 +3,21 @@ import { NextPage } from "next";
 import React, { useState } from "react";
 
 type Opp = {
-  name: string;
-  desc: string;
-  id: number;
-};
+  name: string
+  desc: string
+  start: number
+  end: number
+  lat: number
+  lon: number
+  id: number
+}
 
 const Service: NextPage = () => {
   const queryClient = useQueryClient();
   const { isLoading, error, data } = useQuery<Opp[], Error>(
     ["opps"],
     async (): Promise<Opp[]> => {
-      const res = await fetch("http://localhost:8000/items");
+      const res = await fetch("http://localhost:8080/opps");
       const arr = (await res.json()) as Opp[];
       return arr;
     }
@@ -23,7 +27,7 @@ const Service: NextPage = () => {
   console.log("data", JSON.stringify(data));
   const { mutate } = useMutation(
     (oppPost: { name: string; desc: string }) => {
-      return fetch("http://localhost:8000/items/", {
+      return fetch("http://localhost:8080/opps/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(oppPost),
@@ -71,7 +75,7 @@ const ServiceCard: React.FC<{ opp: Opp }> = ({ opp: { name, desc, id } }) => {
   const queryClient = useQueryClient();
   const deleteMutation = useMutation(
     (del: { id: number }) => {
-      return fetch(`http://localhost:8000/items/${del.id}`, {
+      return fetch(`http://localhost:8080/opps/${del.id}`, {
         method: "DELETE",
       });
     },
