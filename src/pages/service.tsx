@@ -1,33 +1,32 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { NextPage } from "next";
 import React, { useState } from "react";
+import { env } from "../env/client.mjs";
 
 type Opp = {
-  name: string
-  desc: string
-  start: number
-  end: number
-  lat: number
-  lon: number
-  id: number
-}
+  name: string;
+  desc: string;
+  start: number;
+  end: number;
+  lat: number;
+  lon: number;
+  id: number;
+};
 
 const Service: NextPage = () => {
   const queryClient = useQueryClient();
   const { isLoading, error, data } = useQuery<Opp[], Error>(
     ["opps"],
     async (): Promise<Opp[]> => {
-      const res = await fetch("http://localhost:8080/opps");
+      const res = await fetch(env.NEXT_PUBLIC_API_URL + "/opps");
       const arr = (await res.json()) as Opp[];
       return arr;
     }
   );
-  const [name, setName] = useState("name");
-  const [desc, setDesc] = useState("value");
   console.log("data", JSON.stringify(data));
   const { mutate } = useMutation(
     (oppPost: { name: string; desc: string }) => {
-      return fetch("http://localhost:8080/opps/", {
+      return fetch(env.NEXT_PUBLIC_API_URL + "/opps", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(oppPost),
@@ -54,19 +53,6 @@ const Service: NextPage = () => {
           Re-Fetch
         </button>
       </div>
-      <div className="bg-pink-50">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="text"
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-        />
-      </div>
-      <button onClick={() => mutate({ name, desc })}>Create New Task</button>
     </>
   );
 };
@@ -75,7 +61,7 @@ const ServiceCard: React.FC<{ opp: Opp }> = ({ opp: { name, desc, id } }) => {
   const queryClient = useQueryClient();
   const deleteMutation = useMutation(
     (del: { id: number }) => {
-      return fetch(`http://localhost:8080/opps/${del.id}`, {
+      return fetch(env.NEXT_PUBLIC_API_URL + `/opps/${del.id}`, {
         method: "DELETE",
       });
     },
