@@ -1,8 +1,9 @@
-import { Button, Checkbox, FormControlLabel } from "@mui/material";
+import { Box, Button, Checkbox, FormControlLabel, Modal } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { env } from "../env/client.mjs";
 
@@ -44,8 +45,11 @@ const Home: NextPage = () => {
 
   const onSubmit = (data: Interests) => {
     console.log(data);
-    mutate(data)
+    setModalOpen(false);
+    mutate(data);
   };
+
+  const [modalOpen, setModalOpen] = useState(true);
 
   return (
     <>
@@ -59,36 +63,60 @@ const Home: NextPage = () => {
         <h1 className="text-5xl md:text-[5rem] leading-normal font-extrabold text-purple-700">
           <span className="text-purple-300">AI</span> Club Service Project
         </h1>
-        <div className="bg-purple-300 p-4 rounded">
-          {session && <button onClick={() => signOut()}>Sign Out</button>}
-          {!session && (
-            <button onClick={() => signIn("google")}>Sign In</button>
-          )}
+        <div className="flex flex-row gap-4">
+          <div className="bg-purple-300 p-4 rounded">
+            {session && <button onClick={() => signOut()}>Sign Out</button>}
+            {!session && (
+              <button onClick={() => signIn("google")}>Sign In</button>
+            )}
+          </div>
+          <div className="bg-purple-300 p-4 rounded">
+            <button onClick={() => setModalOpen(true)}>Update Interests</button>
+          </div>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <h2>Interests</h2>
-          <FormControlLabel
-            label="x"
-            control={<Checkbox {...register("x")} />}
-          />
+        <Modal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+          className="flex items-center justify-center"
+        >
+          <Box className="bg-gray-900 p-16 rounded-md">
+            <h2 className="text-white text-4xl">Interests</h2>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <FormControlLabel
+                className="text-white "
+                label="x"
+                control={
+                  <Checkbox {...register("x")} className="!text-white" />
+                }
+              />
 
-          <FormControlLabel
-            label="y"
-            control={<Checkbox {...register("y")} />}
-          />
-          <FormControlLabel
-            label="z"
-            control={<Checkbox {...register("z")} />}
-          />
-          <Button
-            className="bg-blue-500"
-            type="submit"
-            color="primary"
-            variant="contained"
-          >
-            Update
-          </Button>
-        </form>
+              <FormControlLabel
+                className="text-white"
+                label="y"
+                control={
+                  <Checkbox {...register("y")} className="!text-white" />
+                }
+              />
+              <FormControlLabel
+                className="text-white"
+                label="z"
+                control={
+                  <Checkbox {...register("z")} className="!text-white" />
+                }
+              />
+              <Button
+                className="bg-blue-500"
+                type="submit"
+                color="primary"
+                variant="contained"
+              >
+                Update
+              </Button>
+            </form>
+          </Box>
+        </Modal>
       </main>
     </>
   );
