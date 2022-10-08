@@ -3,14 +3,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { env } from "../env/client.mjs";
 
 type Interests = {
-  x: boolean;
-  y: boolean;
-  z: boolean;
+  children: boolean;
+  setup_labor: boolean;
+  audio_visual: boolean;
+  teaching: boolean;
+  food: boolean;
+  environment: boolean;
 };
 
 const Home: NextPage = () => {
@@ -20,27 +23,30 @@ const Home: NextPage = () => {
     ["interests"],
     async (): Promise<Interests> => {
       const res = await fetch(
-        env.NEXT_PUBLIC_API_URL + `/user/${session?.user?.id}`
+        env.NEXT_PUBLIC_API_URL + `/users/${session?.user?.id}`
       );
-      const arr = (await res.json()) as Interests;
-      return arr;
+      const ints = (await res.json()) as Interests;
+      return ints;
     }
   );
   const { mutate } = useMutation(
     ["interests"],
-
     (interests: Interests) => {
-      return fetch(env.NEXT_PUBLIC_API_URL + "/interests", {
-        method: "POST",
+      return fetch(env.NEXT_PUBLIC_API_URL + `/users/${session?.user?.id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(interests),
+        body: JSON.stringify({ ...interests, id: session?.user?.id }),
       });
     },
     { onSuccess: () => queryClient.invalidateQueries(["interests"]) }
   );
 
-  const { register, handleSubmit } = useForm<Interests>({
-    defaultValues: interests,
+  const { register, handleSubmit, reset } = useForm<Interests>({
+    defaultValues: useMemo(() => {
+      console.log("interests have changed");
+
+      return interests;
+    }, [interests]),
   });
 
   const onSubmit = (data: Interests) => {
@@ -48,6 +54,11 @@ const Home: NextPage = () => {
     setModalOpen(false);
     mutate(data);
   };
+
+  useEffect(() => {
+    reset(interests);
+    console.log("resetting");
+  }, [interests]);
 
   const [modalOpen, setModalOpen] = useState(true);
 
@@ -74,6 +85,7 @@ const Home: NextPage = () => {
             <button onClick={() => setModalOpen(true)}>Update Interests</button>
           </div>
         </div>
+        <pre>{JSON.stringify(interests)}</pre>
         <Modal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
@@ -81,29 +93,64 @@ const Home: NextPage = () => {
           aria-describedby="modal-modal-description"
           className="flex items-center justify-center"
         >
-          <Box className="bg-gray-900 p-16 rounded-md">
+          <Box className="bg-gray-900 p-16 rounded-md ">
             <h2 className="text-white text-4xl">Interests</h2>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col justify-center items-left"
+            >
               <FormControlLabel
                 className="text-white "
-                label="x"
+                label="Food"
                 control={
-                  <Checkbox {...register("x")} className="!text-white" />
+                  <Checkbox {...register("food")} className="!text-white" />
                 }
               />
 
               <FormControlLabel
                 className="text-white"
-                label="y"
+                label="Supervising Children"
                 control={
-                  <Checkbox {...register("y")} className="!text-white" />
+                  <Checkbox {...register("children")} className="!text-white" />
                 }
               />
               <FormControlLabel
                 className="text-white"
-                label="z"
+                label="Teaching / Tutoring"
                 control={
-                  <Checkbox {...register("z")} className="!text-white" />
+                  <Checkbox {...register("teaching")} className="!text-white" />
+                }
+              />
+              <FormControlLabel
+                className="text-white"
+                label="Setup / Manual Labor"
+                control={
+                  <Checkbox
+                    {...register("setup_labor")}
+                    className="!text-white"
+                  />
+                }
+              />
+
+              <FormControlLabel
+                className="text-white"
+                label="Audio Visual"
+                control={
+                  <Checkbox
+                    {...register("audio_visual")}
+                    className="!text-white"
+                  />
+                }
+              />
+
+              <FormControlLabel
+                className="text-white"
+                label="Environmental"
+                control={
+                  <Checkbox
+                    {...register("environment")}
+                    className="!text-white"
+                  />
                 }
               />
               <Button
