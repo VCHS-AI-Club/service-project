@@ -3,7 +3,12 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useForm, Controller } from 'react-hook-form'
 import { DateTimePicker } from '@mui/x-date-pickers'
-import { Button, TextField } from '@mui/material'
+import {
+  Button,
+  TextField,
+  Checkbox as MuiCheckbox,
+  FormControlLabel,
+} from '@mui/material'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import moment, { Moment } from 'moment'
@@ -137,6 +142,10 @@ const Create: NextPage = () => {
               />
             </div>
             {maps && <LocationAutocomplete maps={maps} setLoc={setLoc} />}{' '}
+            <FormControlLabel
+              label='Church hours'
+              control={<MuiCheckbox {...register('isChurch')} defaultChecked />}
+            />
             <Button
               className='bg-blue-500'
               type='submit'
