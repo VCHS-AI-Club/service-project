@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import moment, { Moment } from "moment";
 import { Loader } from "@googlemaps/js-api-loader";
 import { env } from "../../env/client.mjs";
-import { LocationAutocomplete } from "../../components/LocationAutocomplete.jsx";
+import { LocationAutocomplete } from "../../components/LocationAutocomplete";
 
 type FormData = {
   name: string;
@@ -67,11 +67,11 @@ const Create: NextPage = () => {
   return (
     <>
       <div>
-        <h1 className="text-5xl md:text-[5rem] leading-normal font-extrabold text-purple-700">
+        <h1 className="text-center text-5xl font-extrabold leading-normal text-purple-700 md:text-[5rem]">
           Create a Service Opportunity
         </h1>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="py-8 px-96 flex flex-col items-center content-center gap-4">
+          <div className="flex flex-col content-center items-center gap-4 py-8 px-96">
             <div className="flex flex-row justify-between gap-4">
               <TextField label="name" {...register("name")} className="block" />
               <Controller

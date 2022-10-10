@@ -1,66 +1,13 @@
-import { Box, Button, Checkbox, FormControlLabel, Modal } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
-import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Interests } from "../components/InterestsModal.jsx";
 import { env } from "../env/client.mjs";
 
-type Interests = {
-  children: boolean;
-  setup_labor: boolean;
-  audio_visual: boolean;
-  teaching: boolean;
-  food: boolean;
-  environment: boolean;
-};
-
 const Home: NextPage = () => {
-  const { data: session } = useSession();
-  const queryClient = useQueryClient();
-  const { data: interests } = useQuery<Interests, Error>(
-    ["interests"],
-    async (): Promise<Interests> => {
-      const res = await fetch(
-        env.NEXT_PUBLIC_API_URL + `/users/${session?.user?.id}`
-      );
-      const ints = (await res.json()) as Interests;
-      return ints;
-    }
-  );
-  const { mutate } = useMutation(
-    ["interests"],
-    (interests: Interests) => {
-      return fetch(env.NEXT_PUBLIC_API_URL + `/users/${session?.user?.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...interests, id: session?.user?.id }),
-      });
-    },
-    { onSuccess: () => queryClient.invalidateQueries(["interests"]) }
-  );
-
-  const { register, handleSubmit, reset } = useForm<Interests>({
-    defaultValues: useMemo(() => {
-      console.log("interests have changed");
-
-      return interests;
-    }, [interests]),
-  });
-
-  const onSubmit = (data: Interests) => {
-    console.log(data);
-    setModalOpen(false);
-    mutate(data);
-  };
-
-  useEffect(() => {
-    reset(interests);
-    console.log("resetting");
-  }, [interests]);
-
-  const [modalOpen, setModalOpen] = useState(true);
+  const { data: session, status } = useSession();
+  console.log(session, status);
 
   return (
     <>
@@ -70,100 +17,18 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="container mx-auto flex flex-col items-center justify-center min-h-screen p-4">
-        <h1 className="text-5xl md:text-[5rem] leading-normal font-extrabold text-purple-700">
+      <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+        <h1 className="text-5xl font-extrabold leading-normal text-purple-700 md:text-[5rem]">
           <span className="text-purple-300">AI</span> Club Service Project
         </h1>
         <div className="flex flex-row gap-4">
-          <div className="bg-purple-300 p-4 rounded">
+          <div className="rounded bg-purple-300 p-4">
             {session && <button onClick={() => signOut()}>Sign Out</button>}
             {!session && (
               <button onClick={() => signIn("google")}>Sign In</button>
             )}
           </div>
-          <div className="bg-purple-300 p-4 rounded">
-            <button onClick={() => setModalOpen(true)}>Update Interests</button>
-          </div>
         </div>
-        <pre>{JSON.stringify(interests)}</pre>
-        <Modal
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-          className="flex items-center justify-center"
-        >
-          <Box className="bg-gray-900 p-16 rounded-md ">
-            <h2 className="text-white text-4xl">Interests</h2>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col justify-center items-left"
-            >
-              <FormControlLabel
-                className="text-white "
-                label="Food"
-                control={
-                  <Checkbox {...register("food")} className="!text-white" />
-                }
-              />
-
-              <FormControlLabel
-                className="text-white"
-                label="Supervising Children"
-                control={
-                  <Checkbox {...register("children")} className="!text-white" />
-                }
-              />
-              <FormControlLabel
-                className="text-white"
-                label="Teaching / Tutoring"
-                control={
-                  <Checkbox {...register("teaching")} className="!text-white" />
-                }
-              />
-              <FormControlLabel
-                className="text-white"
-                label="Setup / Manual Labor"
-                control={
-                  <Checkbox
-                    {...register("setup_labor")}
-                    className="!text-white"
-                  />
-                }
-              />
-
-              <FormControlLabel
-                className="text-white"
-                label="Audio Visual"
-                control={
-                  <Checkbox
-                    {...register("audio_visual")}
-                    className="!text-white"
-                  />
-                }
-              />
-
-              <FormControlLabel
-                className="text-white"
-                label="Environmental"
-                control={
-                  <Checkbox
-                    {...register("environment")}
-                    className="!text-white"
-                  />
-                }
-              />
-              <Button
-                className="bg-blue-500"
-                type="submit"
-                color="primary"
-                variant="contained"
-              >
-                Update
-              </Button>
-            </form>
-          </Box>
-        </Modal>
       </main>
     </>
   );

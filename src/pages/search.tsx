@@ -1,22 +1,26 @@
-import { TextField } from '@mui/material'
-import { useQuery } from '@tanstack/react-query'
-import Head from 'next/head'
-import Link from 'next/link'
-import { useState } from 'react'
+import { TextField } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import { GetServerSideProps } from "next";
+import { unstable_getServerSession } from "next-auth";
+import { useSession } from "next-auth/react";
+import Head from "next/head";
+import Link from "next/link";
+import { useState } from "react";
+import { authOptions } from "./api/auth/[...nextauth]";
 // filters:
 //  location
 //  date
 //  time
 
 type Opp = {
-  name: string
-  desc: string
-  start: number
-  end: number
-  lat: number
-  lon: number
-  id: number
-}
+  name: string;
+  desc: string;
+  start: number;
+  end: number;
+  lat: number;
+  lon: number;
+  id: number;
+};
 
 const OppListing: React.FC<{ opp: Opp }> = ({ opp }) => {
   return (
@@ -27,42 +31,45 @@ const OppListing: React.FC<{ opp: Opp }> = ({ opp }) => {
         Google Maps
       </Link>
     </div>
-  )
-}
+  );
+};
 
 type Filter = {
-  start: number | null
-  end: number | null
-  lat: number | null
-  lon: number | null
-  dist: number | null
-}
+  start: number | null;
+  end: number | null;
+  lat: number | null;
+  lon: number | null;
+  dist: number | null;
+};
 
 const Search = () => {
-  const [query, setQuery] = useState<string>('')
+  const [query, setQuery] = useState<string>("");
   const [filter, setFilter] = useState<Filter>({
     start: null,
     end: null,
     lat: null,
     lon: null,
     dist: null,
-  })
+  });
 
   const { isLoading, error, data } = useQuery<Opp[], Error>(
-    ['opps'],
+    ["opps"],
     async (): Promise<Opp[]> => {
-      const res = await fetch('http://localhost:8080/opps')
-      const arr = (await res.json()) as Opp[]
-      return arr
+      const res = await fetch("http://localhost:8080/opps");
+      const arr = (await res.json()) as Opp[];
+      return arr;
     }
-  )
+  );
+
+  const { data: session } = useSession();
+  console.log(session);
 
   if (!data) {
-    if (error) return <div>Error...</div>
-    if (isLoading) return <div>Loading...</div>
+    if (error) return <div>Error...</div>;
+    if (isLoading) return <div>Loading...</div>;
   }
 
-  const LatLng = google.maps.LatLng
+  const LatLng = google.maps.LatLng;
 
   const filtered = data.filter((opp) => {
     return (
@@ -73,8 +80,8 @@ const Search = () => {
           new LatLng({ lat: opp.lat, lng: opp.lon }),
           new LatLng({ lat: filter.lat, lng: filter.lon })
         ))
-    )
-  })
+    );
+  });
 
   return (
     <>
@@ -87,7 +94,18 @@ const Search = () => {
         {data && data.map((opp) => <OppListing key={opp.id} opp={opp} />)}
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Search
+export default Search;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+  console.log(session);
+
+  return { props: { session } };
+};
