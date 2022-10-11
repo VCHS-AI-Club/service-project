@@ -2,6 +2,9 @@
 
 ## TODO
 
+- [ ] user -> "join" service opp
+- [ ] user rate service opp
+
 - [ ] remove console.log
 - [ ] run AI model on opps
 - [ ] OG Tags
