@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { GetServerSideProps, NextPage } from 'next'
 import { Session, unstable_getServerSession } from 'next-auth'
 import { getSession, useSession } from 'next-auth/react'
+import Link from 'next/link'
 import React, { useMemo, useState } from 'react'
 import { InterestModal, Interests } from '../components/InterestsModal'
 import { env } from '../env/client.mjs'
@@ -9,13 +10,17 @@ import { env as serverEnv } from '../env/server.mjs'
 import { authOptions } from './api/auth/[...nextauth]'
 
 type Opp = {
+  id: string
   name: string
   desc: string
-  start: number
-  end: number
+  isChurch: boolean
+  contact: string
+  website: string
+
   lat: number
   lon: number
-  id: number
+  start: number
+  end: number
 }
 
 const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
@@ -90,7 +95,7 @@ const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
   )
 }
 
-const ServiceCard: React.FC<{ opp: Opp }> = ({ opp: { name, desc, id } }) => {
+const ServiceCard: React.FC<{ opp: Opp }> = ({ opp }) => {
   const queryClient = useQueryClient()
   const deleteMutation = useMutation(
     (del: { id: number }) => {
@@ -103,23 +108,51 @@ const ServiceCard: React.FC<{ opp: Opp }> = ({ opp: { name, desc, id } }) => {
     }
   )
   return (
-    <article className='flex w-96 justify-between rounded-lg border border-gray-200  bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'>
-      <div>
-        <h2 className='text-gray-50'>
-          {id} | {name}
-        </h2>
-        <p className='break-words text-gray-300'>{desc}</p>
-      </div>
-      <div className=' flex flex-col items-center justify-center'>
-        <button
-          className='text-red-500'
-          onClick={() => deleteMutation.mutate({ id })}
-        >
-          X
-        </button>
-        <p className='text-green-400'>80%</p>
-      </div>
-    </article>
+    <>
+      <article className='max-w-sm overflow-hidden rounded shadow-lg'>
+        <div className='px-6 py-4'>
+          <div className='mb-2 text-xl font-bold'>{opp.name}</div>
+          <p className='text-base text-gray-700'>{opp.desc}</p>
+          <Link href={`https://maps.google.com/maps/@${opp.lat},${opp.lon}`}>Google Maps</Link>
+          {new Date(opp.start)}
+          {new Date(opp.end)}
+          <p>{opp.contact}</p>
+          <Link href={opp.website}>Website</Link>
+
+          <span className={'mr-2 mb-2 inline-block rounded-full px-3 py-1 text-sm font-semibold text-gray-700' +  (opp.isChurch ? "bg-blue-200" : "bg-green-200")}>
+            {opp.isChurch ? "Church" : "Organization"}
+          </span>
+        </div>
+        <div className='px-6 pt-4 pb-2'>
+          <span className='mr-2 mb-2 inline-block rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-700'>
+            #photography
+          </span>
+          <span className='mr-2 mb-2 inline-block rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-700'>
+            #travel
+          </span>
+          <span className='mr-2 mb-2 inline-block rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-700'>
+            #winter
+          </span>
+        </Link>
+      </article>
+      <article className='flex w-96 justify-between rounded-lg border border-gray-200  bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'>
+        <div>
+          <h2 className='text-gray-50'>
+            {id} | {name}
+          </h2>
+          <p className='break-words text-gray-300'>{desc}</p>
+        </div>
+        <div className=' flex flex-col items-center justify-center'>
+          <button
+            className='text-red-500'
+            onClick={() => deleteMutation.mutate({ id })}
+          >
+            X
+          </button>
+          <p className='text-green-400'>80%</p>
+        </div>
+      </article>
+    </>
   )
 }
 
