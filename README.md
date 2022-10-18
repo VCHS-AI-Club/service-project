@@ -2,9 +2,13 @@
 
 ## TODO
 
+- [ ] refactor fetches into custom hooks / functions
+- [ ] refetch opps on rating mutate
+
 - [ ] user -> "join" service opp
 - [ ] user rate service opp
 
+- [ ] clean up queries <https://codesandbox.io/s/crimson-leaf-210ju?file=/pages/index.tsx>
 - [ ] remove console.log
 - [ ] run AI model on opps
 - [ ] OG Tags
@@ -20,3 +24,5 @@
   - [x] send data to server
 
 - [x] hook up /admin/create mutation to api
+
+- [x] pass rating value to ServiceOpp

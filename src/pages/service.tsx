@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetServerSideProps, NextPage } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
@@ -12,8 +12,9 @@ import { authOptions } from "./api/auth/[...nextauth]";
 
 const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
   const { data: session } = useSession();
+  const user = session?.user;
   const queryClient = useQueryClient();
-  if (!session) {
+  if (!(session && user)) {
     return <div>Please Sign In</div>;
   }
 
@@ -22,7 +23,7 @@ const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
     error,
     data: opps,
   } = useQuery<Opp[], Error>(["opps"], async (): Promise<Opp[]> => {
-    const res = await fetch(env.NEXT_PUBLIC_API_URL + "/opps");
+    const res = await fetch(env.NEXT_PUBLIC_API_URL + "/opp");
     const arr = (await res.json()) as Opp[];
     return arr;
   });
@@ -31,7 +32,7 @@ const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
     ["interests"],
     async (): Promise<Interests> => {
       const res = await fetch(
-        env.NEXT_PUBLIC_API_URL + `/users/${session?.user?.id}`
+        env.NEXT_PUBLIC_API_URL + `/user/${session?.user?.id}`
       );
       const ints = (await res.json()) as Interests;
       return ints;
@@ -39,18 +40,33 @@ const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
     { initialData: interests }
   );
 
+  const addMutation = useMutation(async (opp_id: number) => {
+    console.log("mutating opp");
+    return await fetch(env.NEXT_PUBLIC_API_URL + `/user/opp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: user.id, opp_id }),
+    });
+  });
+
   const [interestsModalOpen, setInterestsModalOpen] = useState(ints === null);
 
+  if (error) return <div>Error</div>;
+  if (isLoading) return <div>Loading...</div>;
+
   return (
-    <>
-      {isLoading && <div>Loading...</div>}
-      {error && <div>error</div>}
+    <div>
       <h1 className="text-center text-5xl font-extrabold leading-normal text-purple-300 md:text-[5rem]">
         Service
       </h1>
       <div className="flex flex-col items-center gap-4 px-32">
         {opps?.map((opp) => (
-          <ServiceCard opp={opp} key={opp.id} />
+          <ServiceCard
+            opp={opp}
+            key={opp.id}
+            action={() => addMutation.mutate(opp.id)}
+            actionText="add"
+          />
         ))}
         <button
           onClick={() => queryClient.invalidateQueries(["opps"])}
@@ -68,7 +84,7 @@ const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
       <button onClick={() => setInterestsModalOpen(true)}>
         Update Interests
       </button>
-    </>
+    </div>
   );
 };
 
@@ -83,7 +99,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   let interests: Interests | null = null;
   try {
-    const res = await fetch(serverEnv.API_URL + `/users/${session?.user?.id}`);
+    const res = await fetch(serverEnv.API_URL + `/user/${session?.user?.id}`);
     interests = (await res.json()) as Interests;
   } catch (err) {
     console.log(err);
