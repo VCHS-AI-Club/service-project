@@ -14,9 +14,6 @@ const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
   const { data: session } = useSession();
   const user = session?.user;
   const queryClient = useQueryClient();
-  if (!(session && user)) {
-    return <div>Please Sign In</div>;
-  }
 
   const {
     isLoading,
@@ -51,8 +48,12 @@ const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
 
   const [interestsModalOpen, setInterestsModalOpen] = useState(ints === null);
 
+  if (!(session && user)) {
+    return <div>Please Sign In</div>;
+  }
   if (error) return <div>Error</div>;
   if (isLoading) return <div>Loading...</div>;
+
 
   return (
     <div>

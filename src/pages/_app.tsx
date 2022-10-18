@@ -1,6 +1,6 @@
 import "../styles/globals.css";
 
-import type AppType from "next/app";
+import { type AppProps } from "next/app";
 import type { Session } from "next-auth";
 import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -81,10 +81,10 @@ const NavLink: React.FC<{ href: string; slug: string; text: string }> = ({
   );
 };
 
-const MyApp: AppType<{ session: Session | null }> = ({
+const MyApp = ({
   Component,
   pageProps: { session, ...pageProps },
-}) => {
+}: AppProps<{ session: Session }>) => {
   return (
     <QueryClientProvider client={queryClient}>
       <LocalizationProvider dateAdapter={AdapterMoment}>

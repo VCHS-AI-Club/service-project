@@ -22,10 +22,10 @@ export const LocationAutocomplete = ({
     clearSuggestions,
   } = usePlacesAutocomplete({
     requestOptions: {
-      googleMaps: maps, // @ts-ignore: lib uses `any` for some reason
+      googleMaps: maps, // @ts-ignore
     },
     debounce: 300,
-  });
+  } as any);
   const ref = useOnclickOutside(() => {
     // When user clicks outside of the component, we can dismiss
     // the searched suggestions by calling this method

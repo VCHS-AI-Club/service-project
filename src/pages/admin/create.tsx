@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import {
   Button,
@@ -39,6 +39,7 @@ type Opp = {
   end: number;
 };
 
+
 const Create: NextPage = () => {
   const { status } = useSession();
   const router = useRouter();
@@ -47,6 +48,7 @@ const Create: NextPage = () => {
   }
 
   const { register, handleSubmit, control } = useForm<FormData>();
+const { fields, append, remove } = useFieldArray({ name: 'desc', control } as never);
   const [loc, setLoc] = useState<{ lat: number; lon: number }>({
     lat: 0,
     lon: 0,
@@ -101,6 +103,7 @@ const Create: NextPage = () => {
             <TextField
               label="description"
               {...register("desc")}
+              {/* https://react-hook-form.com/api/usefieldarray/ */}
               className="block"
               multiline
               fullWidth
