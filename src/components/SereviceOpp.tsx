@@ -17,7 +17,7 @@ export type Opp = {
 export type RateableOpp = Opp & { rating: number | null };
 
 export const ServiceCard: React.FC<{
-  opp: RateableOpp;
+  opp: Opp | RateableOpp;
   action?: () => void;
   actionText?: string;
   rateable?: boolean;

@@ -22,8 +22,8 @@ export const LocationAutocomplete = ({
     clearSuggestions,
   } = usePlacesAutocomplete({
     requestOptions: {
-      googleMaps: maps, // @ts-ignore
-    },
+      googleMaps: maps, 
+  },
     debounce: 300,
   } as any);
   const ref = useOnclickOutside(() => {
