@@ -7,10 +7,9 @@ import {
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Session } from "next-auth";
-import Head from "next/head";
-import { useEffect, useMemo, useState } from "react";
-import { FormState, useForm } from "react-hook-form";
-import { env } from "../env/client.mjs";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { updateInterests } from "../api";
 
 export type Interests = {
   children: boolean;
@@ -35,20 +34,16 @@ export const InterestModal: React.FC<{
   });
   useEffect(() => {
     reset(ints);
-  }, [ints]);
+  }, [ints, reset]);
 
   const queryClient = useQueryClient();
   const { mutate } = useMutation(
-    ["interests.mutation"],
+    ["interests"],
     (interests: Interests) => {
       setInts(interests);
       console.log("mutating put req");
 
-      return fetch(env.NEXT_PUBLIC_API_URL + `/user/${session?.user?.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...interests, id: session?.user?.id }),
-      });
+      return updateInterests(interests, session?.user?.id)
     },
     { onSuccess: () => queryClient.invalidateQueries(["interests"]) }
   );
@@ -62,12 +57,12 @@ export const InterestModal: React.FC<{
   const Checkbox: React.FC<{
     label: string;
     formId:
-      | "children"
-      | "setup_labor"
-      | "audio_visual"
-      | "teaching"
-      | "food"
-      | "environment";
+    | "children"
+    | "setup_labor"
+    | "audio_visual"
+    | "teaching"
+    | "food"
+    | "environment";
   }> = ({ label, formId }) => {
     return (
       <FormControlLabel

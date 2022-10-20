@@ -2,21 +2,29 @@
 
 ## TODO
 
-- [ ] refactor fetches into custom hooks / functions
-- [ ] refetch opps on rating mutate
+- [ ] update api route for deleting a user's opp
+- [ ] remove an opp from the service list if a user add's it
 
-- [ ] user -> "join" service opp
-- [ ] user rate service opp
-
-- [ ] clean up queries <https://codesandbox.io/s/crimson-leaf-210ju?file=/pages/index.tsx>
-- [ ] remove console.log
 - [ ] run AI model on opps
-- [ ] OG Tags
+
 - [ ] validate forms
+- [ ] sanitize href for opp's website so it doesnt link back to this one if "https://" is missing
 - [ ] stop duplicate opps being created
+
+- [ ] optimize all queries with onError, onSettle, etc...
+
+- [ ] remove `null`s, switch to `undefined`
+- [ ] remove console.log
+- [ ] OG Tags
+- [ ] responsive
 
 ### Done
 
+- [x] clean up queries <https://codesandbox.io/s/crimson-leaf-210ju?file=/pages/index.tsx>
+- [x] refactor fetches into custom hooks / functions
+- [x] refetch opps on rating mutate
+- [x] user -> "join" service opp
+- [x] user rate service opp
 - [x] set up initial user survey
 
   - [x] create modal

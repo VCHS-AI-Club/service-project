@@ -13,17 +13,16 @@ export const LocationAutocomplete = ({
   setLoc: ({ lat, lon }: { lat: number; lon: number }) => void;
 }) => {
   // https://hackernoon.com/create-your-reactjs-address-autocomplete-component-in-10-minutes-ws2j33ej
-  if (!maps) return <div />; // TODO: Add spinner maybe
   const {
     ready,
     value,
-    suggestions: { status, data },
+    suggestions: { data },
     setValue,
     clearSuggestions,
   } = usePlacesAutocomplete({
     requestOptions: {
-      googleMaps: maps, 
-  },
+      googleMaps: maps,
+    },
     debounce: 300,
   } as any);
   const ref = useOnclickOutside(() => {
@@ -41,21 +40,21 @@ export const LocationAutocomplete = ({
 
   const handleSelect =
     ({ description }: { description: string }) =>
-    () => {
-      // When user selects a place, we can replace the keyword without request data from API
-      // by setting the second parameter to "false"
-      setValue(description, false);
-      clearSuggestions();
+      () => {
+        // When user selects a place, we can replace the keyword without request data from API
+        // by setting the second parameter to "false"
+        setValue(description, false);
+        clearSuggestions();
 
-      // Get latitude and longitude via utility functions
-      getGeocode({ address: description }).then((results) => {
-        if (results[0]) {
-          const { lat, lng: lon } = getLatLng(results[0]);
-          setLoc({ lat, lon });
-          console.log("📍 Coordinates: ", { lat, lon });
-        }
-      });
-    };
+        // Get latitude and longitude via utility functions
+        getGeocode({ address: description }).then((results) => {
+          if (results[0]) {
+            const { lat, lng: lon } = getLatLng(results[0]);
+            setLoc({ lat, lon });
+            console.log("📍 Coordinates: ", { lat, lon });
+          }
+        });
+      };
 
   const renderSuggestions = () =>
     data.map((suggestion) => {
@@ -71,6 +70,7 @@ export const LocationAutocomplete = ({
       );
     });
 
+  if (!maps) return <div />; // TODO: Add spinner maybe
   return (
     <div ref={ref} className="flex flex-col items-center justify-center">
       <TextField
@@ -80,7 +80,8 @@ export const LocationAutocomplete = ({
         label="location"
       />
       {/* We can use the "status" to decide whether we should display the dropdown or not */}
-      {status === "OK" && <ul>{renderSuggestions()}</ul>}
+      {/* status === "OK" && <ul>{renderSuggestions()}</ul>*/}
+      <ul>{renderSuggestions()}</ul>
     </div>
   );
 };

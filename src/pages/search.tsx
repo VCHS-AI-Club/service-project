@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
+import { getOpps } from "../api";
 import { env } from "../env/client.mjs";
 import { authOptions } from "./api/auth/[...nextauth]";
 // filters:
@@ -55,11 +56,7 @@ const Search = () => {
 
   const { isLoading, error, data } = useQuery<Opp[], Error>(
     ["opps"],
-    async (): Promise<Opp[]> => {
-      const res = await fetch(env.NEXT_PUBLIC_API_URL + "/opp");
-      const arr = (await res.json()) as Opp[];
-      return arr;
-    }
+    getOpps
   );
 
   const { data: session } = useSession();
@@ -70,8 +67,8 @@ const Search = () => {
     if (isLoading) return <div>Loading...</div>;
   }
 
-  if (typeof google === 'undefined') {
-    return <div>No google</div>
+  if (typeof google === "undefined") {
+    return <div>No google</div>;
   }
 
   const LatLng = google.maps.LatLng;

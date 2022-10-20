@@ -49,7 +49,7 @@ const NavBar = () => {
           )}
           {session?.user?.image && (
             <>
-              <Image src={session?.user?.image} width="36" height="1" />
+              <Image src={session?.user?.image} width="36" height="1" alt="" />
               <div className="text-white">{session?.user?.id}</div>
             </>
           )}
