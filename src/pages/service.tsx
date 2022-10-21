@@ -1,3 +1,4 @@
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetServerSideProps, NextPage } from "next";
 import { unstable_getServerSession } from "next-auth";
@@ -18,7 +19,7 @@ const Service: NextPage<{ interests: Interests | null, inverseOpps?: Opp[] }> = 
     isLoading,
     error,
     data: opps,
-  } = useQuery<Opp[], Error>(["inverse opps"], () => getInverseOpps(user?.id), {initialData: inverseOpps});
+  } = useQuery<Opp[], Error>(["inverse opps"], () => getInverseOpps(user?.id), { initialData: inverseOpps });
 
   const { data: ints } = useQuery<Interests | null, Error>(
     ["interests"],
@@ -33,19 +34,24 @@ const Service: NextPage<{ interests: Interests | null, inverseOpps?: Opp[] }> = 
   }
   if (error) return <div>Error</div>;
   if (isLoading) return <div>Loading...</div>;
-  
-  console.log(opps);
-  
+
+  console.log("opps", opps);
+
+  const [animationParent] = useAutoAnimate()
+
 
   return (
     <div>
       <h1 className="text-center text-5xl font-extrabold leading-normal text-purple-300 md:text-[5rem]">
         Service
       </h1>
-      <div className="flex flex-col items-center gap-4 px-32">
-        {opps?.map((opp) => (
-          <AddableOppCard opp={opp} key={opp.id} />
-        ))}
+      <div className="flex flex-col items-center gap-4 px-32" ref={animationParent as React.LegacyRef<HTMLDivElement>}>
+        <ul>
+          {opps?.map((opp) => (
+            <AddableOppCard opp={opp} key={opp.id} />
+          ))}
+
+        </ul>
         <button
           onClick={() => queryClient.invalidateQueries(["opps"])}
           className="rounded bg-purple-300"

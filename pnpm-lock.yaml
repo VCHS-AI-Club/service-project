@@ -4,6 +4,7 @@ specifiers:
   '@babel/core': ^7.19.3
   '@emotion/react': ^11.10.4
   '@emotion/styled': ^11.10.4
+  '@formkit/auto-animate': 1.0.0-beta.3
   '@googlemaps/js-api-loader': ^1.14.3
   '@mui/material': ^5.10.9
   '@mui/system': ^5.10.9
@@ -45,6 +46,7 @@ dependencies:
   '@babel/core': 7.19.3
   '@emotion/react': 11.10.4_ihakah5cf6y53suoc2giy6uyfe
   '@emotion/styled': 11.10.4_ttud5ttoh5ut4ezfjdpbau33wu
+  '@formkit/auto-animate': 1.0.0-beta.3
   '@googlemaps/js-api-loader': 1.14.3
   '@mui/material': 5.10.9_vv5bet2p3enrnf5dnaousnwu6y
   '@mui/system': 5.10.9_zz2eagv35glntd7zcmw26kl2ci
@@ -509,6 +511,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@formkit/auto-animate/1.0.0-beta.3:
+    resolution: {integrity: sha512-glsi+ytwQpxT/Ctr9GtcIfVr4dO6mJ04mQbNU8MFSdCdqMopHtyfU5Fib0+9lNFIeR0luY4/0NW95/2R5pKsag==}
+    dev: false
 
   /@googlemaps/js-api-loader/1.14.3:
     resolution: {integrity: sha512-6iIb+qpGgQpgIHmIFO44WhE1rDUxPVHuezNFL30wRJnkvhwFm94tD291UvNg9L05hLDSoL16jd0lbqqmdy4C5g==}

@@ -168,20 +168,23 @@ export const AddableOppCard: React.FC<{ opp: Opp }> = ({ opp }) => {
   const user = session?.user
   const queryClient = useQueryClient();
 
-  const { mutate: addOpp } = useMutation(['opps'], async (opp_id: number) => {
-    console.log('mutating opp')
+  const { mutate: addOpp } = useMutation(['opps'], async (oppId: number) => {
+    console.log('mutating opp', JSON.stringify({ user_id: user?.id, opp_id: oppId }), oppId)
     return await fetch(env.NEXT_PUBLIC_API_URL + `/user/opp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: user?.id, opp_id }),
+      body: JSON.stringify({ user_id: user?.id, opp_id: oppId }),
     })
   }, {
     onSettled: async () => {
       console.log("invalidated");
-      
+
       await queryClient.invalidateQueries(["inverse opps"])
     }
   })
+
+  console.log("Card: opp.id", opp);
+
 
   return (
     <OppCardBase opp={opp}>
