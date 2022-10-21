@@ -5,12 +5,11 @@ import { useSession } from "next-auth/react";
 import React, { useState } from "react";
 import { InterestModal, Interests } from "../components/InterestsModal";
 import type { Opp } from "../components/OppCard";
-import { env } from "../env/client.mjs";
 import { authOptions } from "./api/auth/[...nextauth]";
-import { getInterests, getOpps } from "../api";
+import { getInterests, getInverseOpps, getOpps } from "../api";
 import { AddableOppCard } from "../components/OppCard";
 
-const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
+const Service: NextPage<{ interests: Interests | null, inverseOpps?: Opp[] }> = ({ interests, inverseOpps }) => {
   const { data: session } = useSession();
   const user = session?.user;
   const queryClient = useQueryClient();
@@ -19,7 +18,7 @@ const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
     isLoading,
     error,
     data: opps,
-  } = useQuery<Opp[], Error>(["opps"], getOpps);
+  } = useQuery<Opp[], Error>(["inverse opps"], () => getInverseOpps(user?.id), {initialData: inverseOpps});
 
   const { data: ints } = useQuery<Interests | null, Error>(
     ["interests"],
@@ -34,6 +33,9 @@ const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
   }
   if (error) return <div>Error</div>;
   if (isLoading) return <div>Loading...</div>;
+  
+  console.log(opps);
+  
 
   return (
     <div>
@@ -79,5 +81,13 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   } catch (err) {
     console.log(err);
   }
-  return { props: { session, interests } };
+
+  let inverseOpps: Opp[] | undefined = undefined
+  try {
+    inverseOpps = await getInverseOpps(session?.user?.id)
+  } catch (err) {
+    console.log(err)
+  }
+
+  return { props: { session, interests, inverseOpps } };
 };

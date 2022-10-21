@@ -166,6 +166,7 @@ export const RateableOppCard: React.FC<{ opp: RateableOpp }> = ({ opp }) => {
 export const AddableOppCard: React.FC<{ opp: Opp }> = ({ opp }) => {
   const { data: session } = useSession()
   const user = session?.user
+  const queryClient = useQueryClient();
 
   const { mutate: addOpp } = useMutation(['opps'], async (opp_id: number) => {
     console.log('mutating opp')
@@ -174,6 +175,12 @@ export const AddableOppCard: React.FC<{ opp: Opp }> = ({ opp }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: user?.id, opp_id }),
     })
+  }, {
+    onSettled: async () => {
+      console.log("invalidated");
+      
+      await queryClient.invalidateQueries(["inverse opps"])
+    }
   })
 
   return (

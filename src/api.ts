@@ -43,8 +43,8 @@ export const createOpp = async (newOpp: OppSchema) => {
   });
 };
 
-export const updateInterests = (interests: Interests, userId?: string) => {
-  return fetch(env.NEXT_PUBLIC_API_URL + `/user/${userId}`, {
+export const updateInterests = async (interests: Interests, userId?: string) => {
+  return await fetch(env.NEXT_PUBLIC_API_URL + `/user/${userId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...interests, id: userId }),
@@ -59,4 +59,11 @@ export const updateOppRating = async (rating: number, oppId: number, userId?: st
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ user_id: userId, rating }),
   });
+}
+
+export const getInverseOpps = async (userId?: string) => {
+  const res = await fetch(env.NEXT_PUBLIC_API_URL + `/user/${userId}/inverse_opps`, {
+    method: "GET",
+  });
+  return await res.json() as Opp[]
 }
