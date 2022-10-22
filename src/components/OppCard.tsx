@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { useState } from 'react'
 import { updateOppRating } from '../api'
 import { env } from '../env/client.mjs'
 
@@ -229,5 +228,5 @@ export const RemoveableOppCard: React.FC<{ opp: Opp }> = ({ opp }) => {
 
 export const EditableOppCard: React.FC<{ opp: Opp }> = ({ opp }) => {
   // TODO: Make edit page for opps
-  return <div>WIP</div>
+  return <div>{JSON.stringify(opp)}</div>
 }

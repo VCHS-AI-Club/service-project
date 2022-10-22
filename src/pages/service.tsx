@@ -1,5 +1,5 @@
 import { useAutoAnimate } from '@formkit/auto-animate/react'
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetServerSideProps, NextPage } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import { InterestModal, Interests } from "../components/InterestsModal";
 import type { Opp } from "../components/OppCard";
 import { authOptions } from "./api/auth/[...nextauth]";
-import { getInterests, getInverseOpps, getOpps } from "../api";
+import { getInterests, getInverseOpps} from "../api";
 import { AddableOppCard } from "../components/OppCard";
 
 const Service: NextPage<{ interests: Interests | null, inverseOpps?: Opp[] }> = ({ interests, inverseOpps }) => {
@@ -29,6 +29,8 @@ const Service: NextPage<{ interests: Interests | null, inverseOpps?: Opp[] }> = 
 
   const [interestsModalOpen, setInterestsModalOpen] = useState(ints === null);
 
+  const [animationParent] = useAutoAnimate()
+
   if (!(session && user)) {
     return <div>Please Sign In</div>;
   }
@@ -36,9 +38,6 @@ const Service: NextPage<{ interests: Interests | null, inverseOpps?: Opp[] }> = 
   if (isLoading) return <div>Loading...</div>;
 
   console.log("opps", opps);
-
-  const [animationParent] = useAutoAnimate()
-
 
   return (
     <div>
