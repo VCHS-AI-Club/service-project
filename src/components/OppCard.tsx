@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { updateOppRating } from '../api'
+import { deleteOppAsc, updateOppRating } from '../api'
 import { env } from '../env/client.mjs'
 
 export type Opp = {
@@ -200,24 +200,25 @@ export const AddableOppCard: React.FC<{ opp: Opp }> = ({ opp }) => {
 export const RemoveableOppCard: React.FC<{ opp: Opp }> = ({ opp }) => {
   const { data: session } = useSession()
   const user = session?.user
-
+  const queryClient = useQueryClient()
   // TODO: Update api route
   const { mutate: removeOpp } = useMutation(
-    ['opps'],
-    async (opp_id: number) => {
-      console.log('mutating opp')
-      return await fetch(env.NEXT_PUBLIC_API_URL + `/user/opp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: user?.id, opp_id }),
-      })
+    ['rateable opps'],
+    async () => {
+      console.log('deleting opp asc', opp.id)
+      return deleteOppAsc(opp.id, user?.id)
+    },
+    {
+      onSettled: async () => {
+        await queryClient.invalidateQueries(["rateable opps"])
+      }
     }
   )
 
   return (
     <OppCardBase opp={opp}>
       <div
-        onClick={() => removeOpp(opp.id)}
+        onClick={() => removeOpp()}
         className='cursor-pointer rounded-full bg-pink-300 p-4'
       >
         remove

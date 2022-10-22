@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { GetServerSideProps } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
-import React from "react";
+import React, { LegacyRef } from "react";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { partition } from "../utils";
 import {
@@ -12,6 +12,7 @@ import {
   type RateableOpp,
 } from "../components/OppCard";
 import { getRateableOpps } from "../api";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 export default function DashboardPage(props: { opps: RateableOpp[] | null }) {
   const { data: session } = useSession();
@@ -25,6 +26,8 @@ export default function DashboardPage(props: { opps: RateableOpp[] | null }) {
     },
     { initialData: props.opps }
   );
+
+  const [animationParent] = useAutoAnimate()
 
   if (!session || !user) {
     return <div>Please Login</div>;
@@ -47,12 +50,18 @@ export default function DashboardPage(props: { opps: RateableOpp[] | null }) {
       <h1>Dashboard</h1>
       <h2>Upcoming</h2>
       <div>
-        {upcoming &&
-          upcoming.map((opp) => <RemoveableOppCard opp={opp} key={opp.id} />)}
+        <ul ref={animationParent as LegacyRef<HTMLUListElement>}>
+
+          {upcoming &&
+            upcoming.map((opp) => <RemoveableOppCard opp={opp} key={opp.id} />)}
+        </ul>
       </div>
       <h2>Past</h2>
       <div>
-        {past && past.map((opp) => <RateableOppCard opp={opp} key={opp.id} />)}
+        <ul ref={animationParent as LegacyRef<HTMLUListElement>}>
+          Pase
+          {past && past.map((opp) => <RateableOppCard opp={opp} key={opp.id} />)}
+        </ul>
       </div>
     </div>
   );

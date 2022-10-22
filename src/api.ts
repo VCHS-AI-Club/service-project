@@ -67,3 +67,9 @@ export const getInverseOpps = async (userId?: string) => {
   });
   return await res.json() as Opp[]
 }
+
+export const deleteOppAsc = async (oppId: number, userId?: string) => {
+  console.log("inside api func");
+  
+  return await fetch(env.NEXT_PUBLIC_API_URL + `/user/${userId}/opp/${oppId}`, { method: "DELETE" })
+}
