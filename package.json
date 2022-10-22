@@ -13,6 +13,7 @@
     "@babel/core": "^7.19.3",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
+    "@formkit/auto-animate": "1.0.0-beta.3",
     "@googlemaps/js-api-loader": "^1.14.3",
     "@mui/material": "^5.10.9",
     "@mui/system": "^5.10.9",

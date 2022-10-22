@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { useState } from 'react'
 import { updateOppRating } from '../api'
 import { env } from '../env/client.mjs'
 
@@ -166,15 +165,25 @@ export const RateableOppCard: React.FC<{ opp: RateableOpp }> = ({ opp }) => {
 export const AddableOppCard: React.FC<{ opp: Opp }> = ({ opp }) => {
   const { data: session } = useSession()
   const user = session?.user
+  const queryClient = useQueryClient();
 
-  const { mutate: addOpp } = useMutation(['opps'], async (opp_id: number) => {
-    console.log('mutating opp')
+  const { mutate: addOpp } = useMutation(['opps'], async (oppId: number) => {
+    console.log('mutating opp', JSON.stringify({ user_id: user?.id, opp_id: oppId }), oppId)
     return await fetch(env.NEXT_PUBLIC_API_URL + `/user/opp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: user?.id, opp_id }),
+      body: JSON.stringify({ user_id: user?.id, opp_id: oppId }),
     })
+  }, {
+    onSettled: async () => {
+      console.log("invalidated");
+
+      await queryClient.invalidateQueries(["inverse opps"])
+    }
   })
+
+  console.log("Card: opp.id", opp);
+
 
   return (
     <OppCardBase opp={opp}>
@@ -219,5 +228,5 @@ export const RemoveableOppCard: React.FC<{ opp: Opp }> = ({ opp }) => {
 
 export const EditableOppCard: React.FC<{ opp: Opp }> = ({ opp }) => {
   // TODO: Make edit page for opps
-  return <div>WIP</div>
+  return <div>{JSON.stringify(opp)}</div>
 }

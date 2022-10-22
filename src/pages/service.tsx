@@ -1,16 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAutoAnimate } from '@formkit/auto-animate/react'
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetServerSideProps, NextPage } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
 import React, { useState } from "react";
 import { InterestModal, Interests } from "../components/InterestsModal";
 import type { Opp } from "../components/OppCard";
-import { env } from "../env/client.mjs";
 import { authOptions } from "./api/auth/[...nextauth]";
-import { getInterests, getOpps } from "../api";
+import { getInterests, getInverseOpps} from "../api";
 import { AddableOppCard } from "../components/OppCard";
 
-const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
+const Service: NextPage<{ interests: Interests | null, inverseOpps?: Opp[] }> = ({ interests, inverseOpps }) => {
   const { data: session } = useSession();
   const user = session?.user;
   const queryClient = useQueryClient();
@@ -19,7 +19,7 @@ const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
     isLoading,
     error,
     data: opps,
-  } = useQuery<Opp[], Error>(["opps"], getOpps);
+  } = useQuery<Opp[], Error>(["inverse opps"], () => getInverseOpps(user?.id), { initialData: inverseOpps });
 
   const { data: ints } = useQuery<Interests | null, Error>(
     ["interests"],
@@ -29,21 +29,28 @@ const Service: NextPage<{ interests: Interests | null }> = ({ interests }) => {
 
   const [interestsModalOpen, setInterestsModalOpen] = useState(ints === null);
 
+  const [animationParent] = useAutoAnimate()
+
   if (!(session && user)) {
     return <div>Please Sign In</div>;
   }
   if (error) return <div>Error</div>;
   if (isLoading) return <div>Loading...</div>;
 
+  console.log("opps", opps);
+
   return (
     <div>
       <h1 className="text-center text-5xl font-extrabold leading-normal text-purple-300 md:text-[5rem]">
         Service
       </h1>
-      <div className="flex flex-col items-center gap-4 px-32">
-        {opps?.map((opp) => (
-          <AddableOppCard opp={opp} key={opp.id} />
-        ))}
+      <div className="flex flex-col items-center gap-4 px-32" ref={animationParent as React.LegacyRef<HTMLDivElement>}>
+        <ul>
+          {opps?.map((opp) => (
+            <AddableOppCard opp={opp} key={opp.id} />
+          ))}
+
+        </ul>
         <button
           onClick={() => queryClient.invalidateQueries(["opps"])}
           className="rounded bg-purple-300"
@@ -79,5 +86,13 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   } catch (err) {
     console.log(err);
   }
-  return { props: { session, interests } };
+
+  let inverseOpps: Opp[] | undefined = undefined
+  try {
+    inverseOpps = await getInverseOpps(session?.user?.id)
+  } catch (err) {
+    console.log(err)
+  }
+
+  return { props: { session, interests, inverseOpps } };
 };
