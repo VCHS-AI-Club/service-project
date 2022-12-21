@@ -48,13 +48,14 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String               @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?              @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
+  opps          UserOppAssociation[]
 }
 
 model VerificationToken {
@@ -63,4 +64,31 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Opp {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String
+  contact     String?
+  url         String?
+  start       DateTime
+  end         DateTime
+
+  users UserOppAssociation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserOppAssociation {
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) // TODO: change?
+  userId String
+  opp    Opp    @relation(fields: [oppId], references: [id], onDelete: Cascade) // TODO: change?
+  oppId  String
+
+  assignedAt DateTime @default(now())
+
+  @@unique([userId, oppId])
 }
