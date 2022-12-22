@@ -1,7 +1,9 @@
 import { type NextPage } from "next";
+import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 
 const Home: NextPage = () => {
+  const { data: session } = useSession();
   return (
     <>
       <Head>
@@ -14,6 +16,14 @@ const Home: NextPage = () => {
           <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
             AI <span className="text-[hsl(280,100%,70%)]">Service</span>
           </h1>
+          {!session && (
+            <button
+              className="rounded  bg-[hsl(280,100%,70%)] px-8 py-4 font-bold text-white"
+              onClick={() => signIn("google")}
+            >
+              Sing In
+            </button>
+          )}
         </div>
       </main>
     </>
