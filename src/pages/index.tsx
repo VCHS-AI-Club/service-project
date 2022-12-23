@@ -1,6 +1,7 @@
 import { type NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
+import Link from "next/link";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
@@ -24,6 +25,20 @@ const Home: NextPage = () => {
               Sing In
             </button>
           )}
+          <div className="flex flex-col items-center gap-2">
+            <Link href="/dashboard" className="text-white underline">
+              Dashboard
+            </Link>
+            <Link href="/service" className="text-white underline">
+              Service
+            </Link>
+            <Link href="/create" className="text-white underline">
+              Create
+            </Link>
+            <Link href="/edit" className="text-white underline">
+              Edit
+            </Link>
+          </div>
         </div>
       </main>
     </>

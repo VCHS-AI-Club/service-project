@@ -1,5 +1,5 @@
 import React from "react";
-import { type RouterOutputs } from "../utils/trpc";
+import { type RouterOutputs } from "../../utils/trpc";
 import {} from "date-fns";
 
 // TODO: cva
@@ -9,8 +9,7 @@ type Opp = RouterOutputs["opp"]["upcoming"][number];
 export const OppCard: React.FC<{
   opp: Opp;
   new_: boolean;
-  action: ({ id }: { id: string }) => Promise<void>;
-  actionText: string;
+  action: React.ReactNode;
 }> = ({
   opp: {
     id,
@@ -26,7 +25,6 @@ export const OppCard: React.FC<{
   },
   new_,
   action,
-  actionText,
 }) => {
   return (
     <article
@@ -47,12 +45,7 @@ export const OppCard: React.FC<{
             </span>
           )}
         </div>
-        <button
-          className="rounded-xl bg-white px-6 py-3"
-          onClick={() => action({ id })}
-        >
-          {actionText}
-        </button>
+        {action}
       </div>
       <p className="text-gray-700">{description}</p>
       <div>
@@ -63,14 +56,14 @@ export const OppCard: React.FC<{
         {contact && <div>{contact}</div>}
         {url && <div>{url}</div>}
       </div>
-      <div>
-        {categories.split(",").map((category, i) => (
-          <>
-            {i > 0 && " | "}
-            <span key={category} className="rounded-xl bg-gray-300 px-2 py-1">
-              {category}
-            </span>
-          </>
+      <div className="flex gap-2">
+        {categories.split(",").map((category) => (
+          <span
+            key={category}
+            className="rounded-xl bg-gray-300 px-2 py-1 text-center"
+          >
+            {category}
+          </span>
         ))}
       </div>
     </article>

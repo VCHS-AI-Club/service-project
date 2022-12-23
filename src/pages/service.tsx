@@ -1,10 +1,19 @@
-import { OppCard } from "../components/Opp";
+import { OppCard } from "../components/opp/Opp";
 import { trpc } from "../utils/trpc";
 
 export default function ServicePage() {
   const { data: opps, error, isLoading } = trpc.opp.upcoming.useQuery();
 
-  const addOpp = trpc.opp.add.useMutation().mutateAsync;
+  const utils = trpc.useContext();
+  // utils.opp.upcoming.setDAta();
+
+  const addOpp = trpc.opp.add.useMutation({
+    onMutate: (addedOpp) => {
+      utils.opp.upcoming.setData(undefined, (oldData) => {
+        return oldData ? oldData.filter((o) => o.id !== addedOpp.id) : [];
+      });
+    },
+  }).mutateAsync;
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -28,8 +37,7 @@ export default function ServicePage() {
             opp={opp}
             key={opp.id}
             new_={opp.createdAt > oneDayAgo}
-            action={addOpp}
-            actionText="Add"
+            action={<button onClick={() => addOpp({ id: opp.id })}>Add</button>}
           />
         ))}
       </ul>

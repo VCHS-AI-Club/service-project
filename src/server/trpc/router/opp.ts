@@ -1,5 +1,9 @@
 import { TRPCError } from "@trpc/server";
-import { oppCreateSchema, oppRateSchema } from "../../../schemas";
+import {
+  oppCreateSchema,
+  oppEditSchema,
+  oppRateSchema,
+} from "../../../schemas";
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 import type { LayersModel, Tensor } from "@tensorflow/tfjs";
 import { z } from "zod";
@@ -8,9 +12,21 @@ let cachedModel: LayersModel | undefined = undefined;
 
 export const oppRouter = router({
   // Get all the service opps
-  getAll: publicProcedure.query(({ ctx }) => {
+  all: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.opp.findMany();
   }),
+  // Get a single service opp by id
+  get: protectedProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const opp = await ctx.prisma.opp.findUnique({
+        where: { id: input.id },
+        include: {
+          users: true,
+        },
+      });
+      return { ...opp, categories: opp?.categories.split(",") };
+    }),
   // Create a new service opp
   create: protectedProcedure
     .input(oppCreateSchema)
@@ -23,6 +39,24 @@ export const oppRouter = router({
       }
       const { categories, ...rest } = input;
       return ctx.prisma.opp.create({
+        data: {
+          ...rest,
+          categories: categories.join(","),
+        },
+      });
+    }),
+  edit: protectedProcedure
+    .input(oppEditSchema)
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.session.user.role !== "ADMIN") {
+        throw new TRPCError({
+          message: "Only admins can edit service opportunities.",
+          code: "UNAUTHORIZED",
+        });
+      }
+      const { categories, ...rest } = input;
+      return ctx.prisma.opp.update({
+        where: { id: input.id },
         data: {
           ...rest,
           categories: categories.join(","),
@@ -50,12 +84,18 @@ export const oppRouter = router({
       });
     }),
   // Remove a user from a service opp
-  delete: protectedProcedure
+  remove: protectedProcedure
     .input(z.object({ id: z.string().min(1) }))
-    .mutation(({ ctx, input }) => {
-      ctx.prisma.userOppAssociation.delete({
+    .mutation(async ({ ctx, input }) => {
+      await ctx.prisma.userOppAssociation.delete({
+        // where: {
+        //   userId_oppId: { oppId: input.id, userId: ctx.session.user.id },
+        // },
         where: {
-          userId_oppId: { oppId: input.id, userId: ctx.session.user.id },
+          userId_oppId: {
+            oppId: input.id,
+            userId: ctx.session.user.id,
+          },
         },
       });
     }),
