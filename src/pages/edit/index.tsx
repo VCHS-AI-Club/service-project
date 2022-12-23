@@ -1,7 +1,6 @@
 import type { GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import React from "react";
 import { OppCard } from "../../components/opp/Opp";
 import { getServerAuthSession } from "../../server/get-server-auth-session";
 import { trpc } from "../../utils/trpc";
@@ -17,14 +16,19 @@ const EditPage = () => {
   const { data: session } = useSession();
 
   const { data: opps } = trpc.opp.all.useQuery();
-
-  const deleteOpp = (id: string) => {
-    return null;
-  };
+  const utils = trpc.useContext();
+  const deleteMutation = trpc.opp.delete.useMutation({
+    onMutate: (deletedOpp) => {
+      utils.opp.all.setData(undefined, (oldData) => {
+        return oldData?.filter((opp) => opp.id !== deletedOpp.id);
+      });
+    },
+  }).mutateAsync;
 
   if (session && session.user?.role !== "ADMIN") {
     return <div>Not authorized</div>;
   }
+
   return (
     <div className="px-36">
       <h1>Edit Page</h1>
@@ -37,7 +41,9 @@ const EditPage = () => {
             action={
               <div className="flex items-center gap-2">
                 <Link href={`/edit/${opp.id}`}>Edit</Link>
-                <button onClick={() => deleteOpp("")}>Delete</button>
+                <button onClick={() => deleteMutation({ id: opp.id })}>
+                  Delete
+                </button>
               </div>
             }
           />

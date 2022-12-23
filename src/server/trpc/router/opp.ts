@@ -4,16 +4,84 @@ import {
   oppEditSchema,
   oppRateSchema,
 } from "../../../schemas";
-import { protectedProcedure, publicProcedure, router } from "../trpc";
+import { adminProcedure, protectedProcedure, router } from "../trpc";
 import type { LayersModel, Tensor } from "@tensorflow/tfjs";
 import { z } from "zod";
 
 let cachedModel: LayersModel | undefined = undefined;
 
 export const oppRouter = router({
+  /// ================= ///
+  /// Admin-only Routes ///
+  /// ================= ///
+
+  // Create a new service opp
+  create: adminProcedure
+    .input(oppCreateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { categories, ...rest } = input;
+      return await ctx.prisma.opp.create({
+        data: {
+          ...rest,
+          categories: categories.join(","),
+        },
+      });
+    }),
+  // Edit a service opp
+  edit: adminProcedure.input(oppEditSchema).mutation(async ({ ctx, input }) => {
+    if (ctx.session.user.role !== "ADMIN") {
+      throw new TRPCError({
+        message: "Only admins can edit service opportunities.",
+        code: "UNAUTHORIZED",
+      });
+    }
+    const { categories, ...rest } = input;
+    return await ctx.prisma.opp.update({
+      where: { id: input.id },
+      data: {
+        ...rest,
+        categories: categories.join(","),
+      },
+    });
+  }),
+  // (Soft) Delete a service opp
+  delete: adminProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.prisma.opp.update({
+        where: { id: input.id },
+        data: { deleted: true },
+      });
+    }),
+  // (Hard) Delete service opps
+  deleteForReal: adminProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.prisma.opp.delete({
+        where: { id: input.id },
+      });
+    }),
+  // Restore a service opp
+  restore: adminProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.prisma.opp.update({
+        where: { id: input.id },
+        data: { deleted: false },
+      });
+    }),
+  // Get all the deleted service opps
+  getDeleted: adminProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.opp.findMany({ where: { deleted: true } });
+  }),
+
+  /// ================ ///
+  /// User-only Routes ///
+  /// ================ ///
+
   // Get all the service opps
-  all: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.opp.findMany();
+  all: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.opp.findMany({ where: { deleted: false } });
   }),
   // Get a single service opp by id
   get: protectedProcedure
@@ -26,42 +94,6 @@ export const oppRouter = router({
         },
       });
       return { ...opp, categories: opp?.categories.split(",") };
-    }),
-  // Create a new service opp
-  create: protectedProcedure
-    .input(oppCreateSchema)
-    .mutation(async ({ ctx, input }) => {
-      if (ctx.session.user.role !== "ADMIN") {
-        throw new TRPCError({
-          message: "Only admins can create service opportunities.",
-          code: "UNAUTHORIZED",
-        });
-      }
-      const { categories, ...rest } = input;
-      return ctx.prisma.opp.create({
-        data: {
-          ...rest,
-          categories: categories.join(","),
-        },
-      });
-    }),
-  edit: protectedProcedure
-    .input(oppEditSchema)
-    .mutation(async ({ ctx, input }) => {
-      if (ctx.session.user.role !== "ADMIN") {
-        throw new TRPCError({
-          message: "Only admins can edit service opportunities.",
-          code: "UNAUTHORIZED",
-        });
-      }
-      const { categories, ...rest } = input;
-      return ctx.prisma.opp.update({
-        where: { id: input.id },
-        data: {
-          ...rest,
-          categories: categories.join(","),
-        },
-      });
     }),
   // Add a user to a service opp
   add: protectedProcedure
@@ -122,6 +154,7 @@ export const oppRouter = router({
             userId: ctx.session.user.id,
           },
         },
+        deleted: false,
       },
     });
   }),
@@ -134,6 +167,7 @@ export const oppRouter = router({
           end: {
             lte: new Date(),
           },
+          deleted: false,
         },
       },
       orderBy: {
@@ -153,6 +187,7 @@ export const oppRouter = router({
           end: {
             gte: new Date(),
           },
+          deleted: false,
         },
       },
       include: {
@@ -167,7 +202,7 @@ export const oppRouter = router({
         opp: true,
         user: true,
       },
-      where: { userId: ctx.session.user.id },
+      where: { userId: ctx.session.user.id, opp: { deleted: false } },
     });
 
     const tf = (await import("@tensorflow/tfjs")).default;
