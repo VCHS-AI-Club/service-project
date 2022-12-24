@@ -1,4 +1,5 @@
-import { OppCard } from "../components/opp/Opp";
+import { OppCard } from "../components/opp/OppCard";
+import { Button, Container, H1 } from "../components/ui";
 import { trpc } from "../utils/trpc";
 
 export default function ServicePage() {
@@ -29,18 +30,22 @@ export default function ServicePage() {
   oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
   return (
-    <div className="px-36">
-      <h1 className="py-8 text-3xl">Service Opportunities</h1>
+    <Container>
+      <H1>Service Opportunities</H1>
       <ul className="flex flex-col gap-8">
         {opps.map((opp) => (
           <OppCard
             opp={opp}
             key={opp.id}
             new_={opp.createdAt > oneDayAgo}
-            action={<button onClick={() => addOpp({ id: opp.id })}>Add</button>}
+            action={
+              <Button variant="primary" onClick={() => addOpp({ id: opp.id })}>
+                Add
+              </Button>
+            }
           />
         ))}
       </ul>
-    </div>
+    </Container>
   );
 }

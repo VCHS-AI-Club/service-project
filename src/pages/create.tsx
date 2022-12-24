@@ -1,5 +1,6 @@
 import { useSession } from "next-auth/react";
 import { OppCreateForm } from "../components/opp";
+import { Container, H1 } from "../components/ui";
 
 const CreatePage = () => {
   const { data: session } = useSession();
@@ -7,10 +8,10 @@ const CreatePage = () => {
     return <div>Not authorized</div>;
 
   return (
-    <div className="px-36">
-      <h1>Create a Service Opportunity</h1>
+    <Container>
+      <H1>Create a Service Opportunity</H1>
       <OppCreateForm />
-    </div>
+    </Container>
   );
 };
 

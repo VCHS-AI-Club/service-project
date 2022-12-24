@@ -1,7 +1,8 @@
 import type { GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { OppCard } from "../../components/opp/Opp";
+import { OppCard } from "../../components/opp/OppCard";
+import { Button, Container, H1 } from "../../components/ui";
 import { getServerAuthSession } from "../../server/get-server-auth-session";
 import { trpc } from "../../utils/trpc";
 
@@ -30,8 +31,8 @@ const EditPage = () => {
   }
 
   return (
-    <div className="px-36">
-      <h1>Edit Page</h1>
+    <Container>
+      <H1>Manage Service Opportunities</H1>
       <ul className="flex flex-col gap-4">
         {opps?.map((opp) => (
           <OppCard
@@ -40,16 +41,21 @@ const EditPage = () => {
             new_={false}
             action={
               <div className="flex items-center gap-2">
-                <Link href={`/edit/${opp.id}`}>Edit</Link>
-                <button onClick={() => deleteMutation({ id: opp.id })}>
+                <Button variant="secondary">
+                  <Link href={`/edit/${opp.id}`}>Edit</Link>{" "}
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => deleteMutation({ id: opp.id })}
+                >
                   Delete
-                </button>
+                </Button>
               </div>
             }
           />
         ))}
       </ul>
-    </div>
+    </Container>
   );
 };
 

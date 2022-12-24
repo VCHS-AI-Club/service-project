@@ -1,6 +1,7 @@
 import { type GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
-import { OppCard } from "../components/opp/Opp";
+import { OppCard } from "../components/opp/OppCard";
+import { Button, Container, H2 } from "../components/ui";
 import { getServerAuthSession } from "../server/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 
@@ -19,7 +20,10 @@ const Star: React.FC<{ title: string; on?: boolean; onClick: () => void }> = ({
       onClick={() => onClick()}
     >
       <title>{title}</title>
-      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+      <path
+        className={on ? "text-indigo-600" : "text-gray-400"}
+        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+      ></path>
     </svg>
   );
 };
@@ -38,7 +42,7 @@ export default function DashboardPage() {
   // TODO: merge into 1 query
   const { data: upcomingUserOpps } = trpc.opp.userUpcoming.useQuery();
   const { data: pastUserOpps } = trpc.opp.userPast.useQuery();
-  const deleteOpp = trpc.opp.remove.useMutation({
+  const removeOpp = trpc.opp.remove.useMutation({
     onMutate: (deletedOpp) => {
       utils.opp.userUpcoming.setData(undefined, (oldData) => {
         return oldData ? oldData.filter((o) => o.opp.id !== deletedOpp.id) : [];
@@ -67,10 +71,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="px-36">
-      <h1 className="py-8 text-center text-3xl font-bold">Dashboard</h1>
-
-      <h2 className="pb-4 text-center text-2xl font-bold">Upcoming</h2>
+    <Container>
+      <H2>Upcoming</H2>
       <ul className="flex flex-col gap-8">
         {upcomingUserOpps &&
           upcomingUserOpps.map(({ opp }) => (
@@ -80,14 +82,17 @@ export default function DashboardPage() {
               // new_={opp.createdAt > oneDayAgo}
               new_={false} // TODO
               action={
-                <button onClick={() => deleteOpp({ id: opp.id })}>
-                  Delete
-                </button>
+                <Button
+                  variant="danger"
+                  onClick={() => removeOpp({ id: opp.id })}
+                >
+                  Remove
+                </Button>
               }
             />
           ))}
       </ul>
-      <h2 className="py-4 text-center text-2xl font-bold">Past</h2>
+      <H2>Past</H2>
       <ul className="flex flex-col gap-8">
         {pastUserOpps &&
           pastUserOpps.map(({ opp, rating }) => {
@@ -114,6 +119,6 @@ export default function DashboardPage() {
             );
           })}
       </ul>
-    </div>
+    </Container>
   );
 }

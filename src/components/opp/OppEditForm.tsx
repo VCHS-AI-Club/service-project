@@ -13,6 +13,7 @@ import {
   MultiSelect,
   TextInput,
 } from "../form";
+import { useRouter } from "next/router.js";
 
 // Google API doesn't export their type, so it's copied here
 type LibType = (
@@ -41,23 +42,27 @@ type FormSchema = z.infer<typeof formSchema>;
 export const OppEditForm: React.FC<{ oppId: string }> = ({ oppId }) => {
   // Form Handlers
 
-  // const
+  const { data: opp } = trpc.opp.get.useQuery({ id: oppId });
+
+  // TODO: revisit defaults
+  const defaultValues = {
+    id: opp?.id || oppId,
+    title: opp?.title || "Title",
+    description: opp?.description || "Desc...",
+    start: opp?.start || new Date(),
+    end: opp?.end || new Date(),
+    isChurch: opp?.isChurch || false,
+    categories: opp?.categories || [],
+    contact: opp?.contact || "",
+    url: opp?.url || "",
+    location: opp?.location || "",
+  };
+  console.log("opp", opp);
+  console.log("dv", defaultValues);
 
   const methods = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
-    // TODO: revisit defaults
-    defaultValues: {
-      id: oppId,
-      title: "Service Opp | " + Date.now(),
-      description: "Description for service opp",
-      start: new Date(),
-      end: new Date(),
-      isChurch: true,
-      categories: [],
-      contact: "",
-      url: "",
-      location: "",
-    },
+    defaultValues,
     mode: "all",
   });
 
@@ -68,8 +73,15 @@ export const OppEditForm: React.FC<{ oppId: string }> = ({ oppId }) => {
 
   if (loadError) console.error("Error loading google maps api:", loadError);
 
-  //   const mutate = trpc.opp.create.useMutation().mutateAsync;
-  const mutate = trpc.opp.edit.useMutation().mutateAsync;
+  const router = useRouter();
+  const mutate = trpc.opp.edit.useMutation({
+    onSuccess: () => {
+      router.push("/edit");
+    },
+    onError: (err) => {
+      console.log("Error creating opportunity:", err);
+    },
+  }).mutateAsync;
 
   const onSubmit = async (formData: FormSchema) => {
     const parsedData = formSchema.safeParse(formData);

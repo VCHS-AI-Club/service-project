@@ -4,6 +4,7 @@ specifiers:
   '@babel/core': ^7.20.5
   '@emotion/react': ^11.10.5
   '@emotion/styled': ^11.10.5
+  '@heroicons/react': ^2.0.13
   '@hookform/resolvers': ^2.9.10
   '@mui/material': ^5.11.1
   '@mui/system': ^5.11.1
@@ -24,6 +25,7 @@ specifiers:
   '@typescript-eslint/eslint-plugin': ^5.47.0
   '@typescript-eslint/parser': ^5.47.0
   autoprefixer: ^10.4.13
+  class-variance-authority: ^0.4.0
   date-fns: ^2.29.3
   eslint: ^8.30.0
   eslint-config-next: 13.0.2
@@ -47,6 +49,7 @@ dependencies:
   '@babel/core': 7.20.5
   '@emotion/react': 11.10.5_xl5my4wapvq2ctl7qwehtbgorq
   '@emotion/styled': 11.10.5_3djhvnr4jirfvebjqpipo7gthy
+  '@heroicons/react': 2.0.13_react@18.2.0
   '@hookform/resolvers': 2.9.10_react-hook-form@7.41.0
   '@mui/material': 5.11.1_lskpmcsdi7ipu6qpuapyu56ihm
   '@mui/system': 5.11.1_ogriz7mfahdh34qnfautfro5yu
@@ -61,6 +64,7 @@ dependencies:
   '@trpc/next': 10.6.0_x2hnq67l6emi5em6cvlzmmenw4
   '@trpc/react-query': 10.6.0_jvy7igwpe5g26kdgldbjgphyd4
   '@trpc/server': 10.6.0
+  class-variance-authority: 0.4.0_typescript@4.9.4
   date-fns: 2.29.3
   next: 13.0.2_672uxklweod7ene3nqtsh262ca
   next-auth: 4.18.6_pknogjuzx4bv7zxtatcb2ahtsq
@@ -525,6 +529,14 @@ packages:
     dependencies:
       fast-deep-equal: 3.1.3
       supercluster: 7.1.5
+    dev: false
+
+  /@heroicons/react/2.0.13_react@18.2.0:
+    resolution: {integrity: sha512-iSN5XwmagrnirWlYEWNPdCDj9aRYVD/lnK3JlsC9/+fqGF80k8C7rl+1HCvBX0dBoagKqOFBs6fMhJJ1hOg1EQ==}
+    peerDependencies:
+      react: '>= 16'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@hookform/resolvers/2.9.10_react-hook-form@7.41.0:
@@ -1738,6 +1750,17 @@ packages:
   /chownr/2.0.0:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
+    dev: false
+
+  /class-variance-authority/0.4.0_typescript@4.9.4:
+    resolution: {integrity: sha512-74enNN8O9ZNieycac/y8FxqgyzZhZbxmCitAtAeUrLPlxjSd5zA7LfpprmxEcOmQBnaGs5hYhiSGnJ0mqrtBLQ==}
+    peerDependencies:
+      typescript: '>= 4.5.5 < 5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      typescript: 4.9.4
     dev: false
 
   /client-only/0.0.1:
@@ -3929,7 +3952,6 @@ packages:
     resolution: {integrity: sha512-Uz+dTXYzxXXbsFpM86Wh3dKCxrQqUcVMxwU54orwlJjOpO3ao8L7j5lH+dWfTwgCwIuM9GQ2kvVotzYJMXTBZg==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /unbox-primitive/1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
