@@ -13,6 +13,7 @@ import {
   MultiSelect,
   TextInput,
 } from "../form";
+import { Button, Container } from "../ui";
 
 // Google API doesn't export their type, so it's copied here
 type LibType = (
@@ -90,14 +91,18 @@ export const OppCreateForm = () => {
   }
 
   return (
-    <div className="m-36">
+    <Container>
       <FormProvider {...methods}>
         <form
           onSubmit={methods.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 pb-16"
         >
           <TextInput<FormSchema> name="title" label="Title" />
-          <TextInput<FormSchema> name="description" label="Description" />
+          <TextInput<FormSchema>
+            name="description"
+            label="Description"
+            multiline
+          />
 
           <TextInput<FormSchema> name="url" label="Website" optional />
           <TextInput<FormSchema>
@@ -132,14 +137,9 @@ export const OppCreateForm = () => {
             <TextField placeholder="Location" />
           )}
 
-          <button
-            type="submit"
-            className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            Save
-          </button>
+          <Button type="submit">Save</Button>
         </form>
       </FormProvider>
-    </div>
+    </Container>
   );
 };
