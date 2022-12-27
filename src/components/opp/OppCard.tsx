@@ -41,7 +41,7 @@ const IconText: React.FC<{
   children: React.ReactNode;
 }> = ({ Icon, children }) => {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-fit items-center gap-2">
       <Icon height={20} className="text-gray-500" />
       <span className="text-gray-500">{children}</span>
     </div>
@@ -118,7 +118,7 @@ export const OppCard: React.FC<{
   }
 
   return (
-    <article className="rounded-xl bg-white shadow">
+    <article className="rounded-xl bg-pink-200 shadow sm:bg-red-200 md:bg-orange-200 lg:bg-yellow-200 xl:bg-green-200 2xl:bg-blue-200">
       <div className="m-4 flex items-center justify-between">
         <H3>{title}</H3>
         {action}
@@ -126,8 +126,8 @@ export const OppCard: React.FC<{
       <hr className="border-1 my-2 border-gray-300" />
       <div className="m-4 flex flex-col gap-4">
         <P>{description}</P>
-        <div className="flex items-center justify-between">
-          <div className="flex gap-8">
+        <div className="flex flex-col items-start gap-4 2xl:flex-row 2xl:justify-between">
+          <div className="flex flex-col flex-wrap gap-2 md:flex-row">
             <IconText Icon={CalendarIcon}>{formatDate(start, end)}</IconText>
             <IconText Icon={MapPinIcon}>{location}</IconText>
             {contact && <IconText Icon={AtSymbolIcon}>{contact}</IconText>}

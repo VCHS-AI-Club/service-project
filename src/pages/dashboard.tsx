@@ -1,9 +1,21 @@
 import { type GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useState } from "react";
+import InterestsModal from "../components/InterestsModal";
 import { OppCard } from "../components/opp/OppCard";
+import SignIn from "../components/SignIn";
 import { Button, Container, H2 } from "../components/ui";
 import { getServerAuthSession } from "../server/get-server-auth-session";
 import { trpc } from "../utils/trpc";
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const session = await getServerAuthSession(ctx);
+
+  return {
+    props: { session },
+  };
+};
 
 const Star: React.FC<{ title: string; on?: boolean; onClick: () => void }> = ({
   title,
@@ -27,17 +39,26 @@ const Star: React.FC<{ title: string; on?: boolean; onClick: () => void }> = ({
     </svg>
   );
 };
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const session = await getServerAuthSession(ctx);
 
-  return {
-    props: { session },
-  };
+const Rating: React.FC<{
+  currentRating: number;
+  onClick: (i: number) => void;
+}> = ({ onClick, currentRating }) => {
+  return (
+    <div className="flex sm:gap-1 md:gap-2">
+      <Star title="1 star" on={currentRating >= 1} onClick={() => onClick(1)} />
+      <Star title="2 star" on={currentRating >= 2} onClick={() => onClick(2)} />
+      <Star title="3 star" on={currentRating >= 3} onClick={() => onClick(3)} />
+      <Star title="4 star" on={currentRating >= 4} onClick={() => onClick(4)} />
+      <Star title="5 star" on={currentRating >= 5} onClick={() => onClick(5)} />
+    </div>
+  );
 };
 
 export default function DashboardPage() {
   const { data: session } = useSession();
   const utils = trpc.useContext();
+  const [modalOpen, setModalOpen] = useState(true);
 
   // TODO: merge into 1 query
   const { data: upcomingUserOpps } = trpc.opp.userUpcoming.useQuery();
@@ -53,7 +74,6 @@ export default function DashboardPage() {
   const rateOpp = trpc.opp.rate.useMutation({
     onMutate: (ratedOpp) => {
       utils.opp.userPast.setData(undefined, (oldData) => {
-        console.log("rated", ratedOpp);
         return oldData
           ? oldData.map((assoc) => {
               if (assoc.opp.id === ratedOpp.oppId) {
@@ -66,15 +86,28 @@ export default function DashboardPage() {
     },
   }).mutateAsync;
 
+  const { data: interests, isLoading } = trpc.user.interests.useQuery();
+
   if (!session?.user) {
-    return <div>Not logged in</div>;
+    return <SignIn />;
+  }
+
+  if (isLoading) {
+    return null;
   }
 
   return (
     <Container>
+      {!interests && (
+        <InterestsModal
+          open={modalOpen}
+          setOpen={setModalOpen}
+          interests={interests}
+        />
+      )}
       <H2>Upcoming</H2>
       <ul className="flex flex-col gap-8">
-        {upcomingUserOpps &&
+        {upcomingUserOpps?.length ? (
           upcomingUserOpps.map(({ opp }) => (
             <OppCard
               opp={opp}
@@ -90,7 +123,16 @@ export default function DashboardPage() {
                 </Button>
               }
             />
-          ))}
+          ))
+        ) : (
+          <p>
+            No upcoming opportunities, you can add some{" "}
+            <Link className="text-indigo-600" href="/service">
+              here
+            </Link>
+            .
+          </p>
+        )}
       </ul>
       <H2>Past</H2>
       <ul className="flex flex-col gap-8">
@@ -104,16 +146,10 @@ export default function DashboardPage() {
                 // new_={opp.createdAt > oneDayAgo}
                 new_={false} // TODO
                 action={
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star
-                        key={i}
-                        on={currentRating >= i}
-                        onClick={() => rateOpp({ oppId: opp.id, rating: i })}
-                        title={`${i}`}
-                      />
-                    ))}
-                  </div>
+                  <Rating
+                    onClick={(r) => rateOpp({ oppId: opp.id, rating: r })}
+                    currentRating={currentRating}
+                  />
                 }
               />
             );

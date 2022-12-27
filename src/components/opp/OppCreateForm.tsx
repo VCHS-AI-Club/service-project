@@ -91,55 +91,49 @@ export const OppCreateForm = () => {
   }
 
   return (
-    <Container>
-      <FormProvider {...methods}>
-        <form
-          onSubmit={methods.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 pb-16"
-        >
-          <TextInput<FormSchema> name="title" label="Title" />
-          <TextInput<FormSchema>
-            name="description"
-            label="Description"
-            multiline
-          />
+    <FormProvider {...methods}>
+      <form
+        onSubmit={methods.handleSubmit(onSubmit)}
+        className="flex flex-col gap-4 pb-16"
+      >
+        <TextInput<FormSchema> name="title" label="Title" />
+        <TextInput<FormSchema>
+          name="description"
+          label="Description"
+          multiline
+        />
 
-          <TextInput<FormSchema> name="url" label="Website" optional />
-          <TextInput<FormSchema>
-            name="contact"
-            label="Contact Email"
-            optional
-          />
+        <TextInput<FormSchema> name="url" label="Website" optional />
+        <TextInput<FormSchema> name="contact" label="Contact Email" optional />
 
-          <DatePicker<FormSchema> name="start" label="Start date and time" />
-          <DatePicker<FormSchema> name="end" label="End date and time" />
+        <DatePicker<FormSchema> name="start" label="Start date and time" />
+        <DatePicker<FormSchema> name="end" label="End date and time" />
 
-          <Checkbox<FormSchema> name="isChurch" label="Church Hours" />
+        <Checkbox<FormSchema> name="isChurch" label="Church Hours" />
 
-          <MultiSelect<FormSchema>
-            name="categories"
-            label="Categories"
-            options={[
-              "environment",
-              "tech",
-              "children",
-              "church",
-              "teaching",
-              "physical",
-            ]}
-          />
+        <MultiSelect<FormSchema>
+          name="categories"
+          label="Categories"
+          options={[
+            "environment",
+            "tech",
+            "children",
+            "church",
+            "teaching",
+            "physical",
+          ]}
+        />
 
-          {/* Only load the location autocomplete if the google maps api is loaded */}
-          {/* otherwise, load a dummy input area */}
-          {isLoaded ? (
-            <LocationAutocomplete name="location" />
-          ) : (
-            <TextField placeholder="Location" />
-          )}
+        {/* Only load the location autocomplete if the google maps api is loaded */}
+        {/* otherwise, load a dummy input area */}
+        {isLoaded ? (
+          <LocationAutocomplete name="location" />
+        ) : (
+          <TextField placeholder="Location" />
+        )}
 
-          <Button type="submit">Save</Button>
-        </form>
-      </FormProvider>
-    </Container>
+        <Button type="submit">Save</Button>
+      </form>
+    </FormProvider>
   );
 };

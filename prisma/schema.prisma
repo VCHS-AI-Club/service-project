@@ -58,6 +58,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   role          String    @default("USER")
+  interests     String?
 
   opps UserOppAssociation[]
 

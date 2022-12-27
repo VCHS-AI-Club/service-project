@@ -29,3 +29,25 @@ export const oppRateSchema = z.object({
   oppId: z.string(),
   rating: z.number().min(1).max(5),
 });
+
+export const INTERESTS = [
+  "church",
+  "teaching",
+  "children",
+  "environment",
+  "tech",
+  "physical",
+] as const;
+
+export const interestsSchema = z.object({
+  interests: z.enum(INTERESTS).array(),
+});
+
+export const interestFormSchema = z.object({
+  church: z.boolean(),
+  teaching: z.boolean(),
+  children: z.boolean(),
+  environment: z.boolean(),
+  tech: z.boolean(),
+  physical: z.boolean(),
+});

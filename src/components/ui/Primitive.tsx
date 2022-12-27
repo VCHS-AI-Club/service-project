@@ -34,7 +34,11 @@ export const P: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 export const Container: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  return <div className="px-36">{children}</div>;
+  return (
+    <div className="mx-auto mt-20 max-w-7xl px-2 sm:px-6 lg:px-8">
+      {children}
+    </div>
+  );
 };
 
 const buttonClasses = cva(
@@ -43,13 +47,17 @@ const buttonClasses = cva(
     variants: {
       variant: {
         primary: [
-          "border-transparent bg-indigo-600 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
+          "border-transparent bg-indigo-600 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ease-in-out duration-150",
         ],
         secondary: [
-          "border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
+          "border-indigo-500 bg-white text-sm font-medium text-indigo-700 shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ease-in-out duration-150",
+        ],
+        normal: [
+          "border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ease-in-out duration-150",
         ],
         danger: [
-          "border-transparent bg-red-600 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2",
+          // "border-transparent bg-red-600 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2",
+          "border-red-600 bg-red-50 text-sm font-medium text-red-600 shadow-sm hover:bg-red-600 focus:bg-red-600 hover:text-white focus:text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ease-in-out duration-150",
         ],
       },
     },
@@ -60,16 +68,11 @@ const buttonClasses = cva(
 );
 export const Button: React.FC<
   React.ButtonHTMLAttributes<HTMLButtonElement> & {
-    variant?: "primary" | "secondary" | "danger";
+    variant?: "primary" | "secondary" | "normal" | "danger";
   }
 > = ({ children, variant, ...props }) => {
   return (
-    <button
-      className={buttonClasses({ variant })}
-      //   className="ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-      //   className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-      {...props}
-    >
+    <button className={buttonClasses({ variant })} {...props}>
       {children}
     </button>
   );

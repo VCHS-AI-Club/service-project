@@ -57,8 +57,6 @@ export const OppEditForm: React.FC<{ oppId: string }> = ({ oppId }) => {
     url: opp?.url || "",
     location: opp?.location || "",
   };
-  console.log("opp", opp);
-  console.log("dv", defaultValues);
 
   const methods = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
