@@ -42,15 +42,24 @@ const InterestsModal: React.FC<{
 
   const onSubmit = async (data: FormSchema) => {
     // Parse data from form
-    const interestsData = interestFormSchema.parse(data);
+    const interestsData = interestFormSchema.safeParse(data);
+    if (!interestsData.success) {
+      console.error(interestsData.error);
+      return;
+    }
     // Filter out unchecked interests
-    const interestsArray = Object.keys(interestsData).filter(
+    const interestsArray = Object.keys(interestsData.data).filter(
       (k) => interestsData[k as keyof typeof interestsData] === true
     );
     // Parse interests array
-    const interests = interestsSchema.parse({ interests: interestsArray });
+    const interests = interestsSchema.safeParse({ interests: interestsArray });
 
-    mutate(interests);
+    if (!interests.success) {
+      console.error(interests.error);
+      return;
+    }
+
+    mutate(interests.data);
 
     setOpen(false);
   };

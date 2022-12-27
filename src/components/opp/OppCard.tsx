@@ -116,9 +116,13 @@ export const OppCard: React.FC<{
     console.error("Dates do not match! ID:", id);
   }
 
-  const { interests: safeCategories } = interestsSchema.parse({
+  const safeCategories = interestsSchema.safeParse({
     interests: categories.split(","),
   });
+  if (!safeCategories.success) {
+    console.error("Invalid categories! ID:", id);
+    return null;
+  }
 
   return (
     <article
@@ -156,7 +160,7 @@ export const OppCard: React.FC<{
             )}
           </div>
           <div className="flex gap-2">
-            {safeCategories.map((category) => (
+            {safeCategories.data.interests.map((category) => (
               <CategoryPill type={category} key={category} /> // FIXME
             ))}
           </div>
