@@ -4,16 +4,26 @@ import Link from "next/link";
 import { useState } from "react";
 import InterestsModal from "../components/InterestsModal";
 import { OppCard } from "../components/opp/OppCard";
+import OppCardSkeleton from "../components/opp/OppCardSkeleton";
 import SignIn from "../components/SignIn";
 import { Button, Container, H2 } from "../components/ui";
 import { getServerAuthSession } from "../server/get-server-auth-session";
 import { trpc } from "../utils/trpc";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { appRouter } from "../server/trpc/router/_app";
+import { createContextInner } from "../server/trpc/context";
+import superjson from "superjson";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const session = await getServerAuthSession(ctx);
-
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: await createContextInner({ session }),
+    transformer: superjson,
+  });
+  ssg.user.interests.prefetch();
   return {
-    props: { session },
+    props: { session, trpcState: ssg.dehydrate() },
   };
 };
 
@@ -61,7 +71,9 @@ export default function DashboardPage() {
   const [modalOpen, setModalOpen] = useState(true);
 
   // TODO: merge into 1 query
-  const { data: upcomingUserOpps } = trpc.opp.userUpcoming.useQuery();
+  const { data: upcomingUserOpps, isLoading: isUpcomingLoading } =
+    trpc.opp.userUpcoming.useQuery();
+
   const { data: pastUserOpps } = trpc.opp.userPast.useQuery();
   const removeOpp = trpc.opp.remove.useMutation({
     onMutate: (deletedOpp) => {
@@ -88,14 +100,11 @@ export default function DashboardPage() {
     },
   }).mutateAsync;
 
-  const { data: interests, isLoading } = trpc.user.interests.useQuery();
+  const { data: interests, isLoading: isInterestsLoading } =
+    trpc.user.interests.useQuery();
 
   if (!session?.user) {
     return <SignIn />;
-  }
-
-  if (isLoading) {
-    return null;
   }
 
   const oneDayAgo = new Date();
@@ -105,13 +114,14 @@ export default function DashboardPage() {
     <Container>
       {!interests && (
         <InterestsModal
-          open={modalOpen}
+          open={modalOpen && !isInterestsLoading}
           setOpen={setModalOpen}
           interests={interests}
         />
       )}
       <H2>Upcoming</H2>
       <ul className="flex flex-col gap-8">
+        {isUpcomingLoading && <OppCardSkeleton />}
         {upcomingUserOpps?.length ? (
           upcomingUserOpps.map(({ opp }) => (
             <OppCard

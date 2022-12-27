@@ -131,7 +131,7 @@ export const OppCard: React.FC<{
         (new_ && " border-2 border-indigo-500 shadow-sm shadow-indigo-500")
       }
     >
-      <div className="m-4 flex items-center justify-between">
+      <div className="m-4 flex items-center justify-between gap-16">
         <div className="flex items-center gap-2">
           <H3>{title} </H3>
 

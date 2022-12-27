@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import InterestsModal from "../components/InterestsModal";
 import { OppCard } from "../components/opp/OppCard";
+import OppCardSkeleton from "../components/opp/OppCardSkeleton";
 import SignIn from "../components/SignIn";
 import { Button, Container, H1 } from "../components/ui";
 import { getServerAuthSession } from "../server/get-server-auth-session";
@@ -20,7 +21,9 @@ export default function ServicePage() {
   const { data: opps, error, isLoading } = trpc.opp.upcoming.useQuery();
 
   const utils = trpc.useContext();
-  // utils.opp.upcoming.setDAta();
+
+  const { data: interests, isLoading: isInterestsLoading } =
+    trpc.user.interests.useQuery();
 
   const addOpp = trpc.opp.add.useMutation({
     onMutate: (addedOpp) => {
@@ -32,16 +35,10 @@ export default function ServicePage() {
 
   const [modalOpen, setModalOpen] = useState(true);
 
-  const { data: interests, isLoading: interestsLoading } =
-    trpc.user.interests.useQuery();
-
   if (!session) {
     return <SignIn />;
   }
 
-  if (isLoading || interestsLoading) {
-    return <div>Loading...</div>;
-  }
   if (error) {
     return <div>{error.message}</div>;
   }
@@ -53,25 +50,32 @@ export default function ServicePage() {
     <Container>
       {!interests && (
         <InterestsModal
-          open={modalOpen}
+          open={modalOpen && !isInterestsLoading}
           setOpen={setModalOpen}
           interests={interests}
         />
       )}
       <H1>Service Opportunities</H1>
       <ul className="flex flex-col gap-8">
-        {opps.map((opp) => (
-          <OppCard
-            opp={opp}
-            key={opp.id}
-            new_={opp.createdAt > oneDayAgo}
-            action={
-              <Button variant="primary" onClick={() => addOpp({ id: opp.id })}>
-                Add
-              </Button>
-            }
-          />
-        ))}
+        {isLoading || isInterestsLoading ? (
+          <OppCardSkeleton />
+        ) : (
+          opps.map((opp) => (
+            <OppCard
+              opp={opp}
+              key={opp.id}
+              new_={opp.createdAt > oneDayAgo}
+              action={
+                <Button
+                  variant="primary"
+                  onClick={() => addOpp({ id: opp.id })}
+                >
+                  Add
+                </Button>
+              }
+            />
+          ))
+        )}
       </ul>
     </Container>
   );
