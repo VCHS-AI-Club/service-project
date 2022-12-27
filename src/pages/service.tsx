@@ -45,9 +45,6 @@ export default function ServicePage() {
   if (error) {
     return <div>{error.message}</div>;
   }
-  if (!opps) {
-    return <div>No opps</div>;
-  }
 
   const oneDayAgo = new Date();
   oneDayAgo.setDate(oneDayAgo.getDate() - 1);

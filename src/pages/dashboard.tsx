@@ -74,6 +74,8 @@ export default function DashboardPage() {
   const rateOpp = trpc.opp.rate.useMutation({
     onMutate: (ratedOpp) => {
       utils.opp.userPast.setData(undefined, (oldData) => {
+        console.log("oldData", oldData);
+
         return oldData
           ? oldData.map((assoc) => {
               if (assoc.opp.id === ratedOpp.oppId) {
@@ -96,6 +98,9 @@ export default function DashboardPage() {
     return null;
   }
 
+  const oneDayAgo = new Date();
+  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
   return (
     <Container>
       {!interests && (
@@ -112,8 +117,7 @@ export default function DashboardPage() {
             <OppCard
               opp={opp}
               key={opp.id}
-              // new_={opp.createdAt > oneDayAgo}
-              new_={false} // TODO
+              new_={opp.createdAt > oneDayAgo}
               action={
                 <Button
                   variant="danger"
@@ -144,7 +148,7 @@ export default function DashboardPage() {
                 opp={opp}
                 key={opp.id}
                 // new_={opp.createdAt > oneDayAgo}
-                new_={false} // TODO
+                new_={opp.end > oneDayAgo}
                 action={
                   <Rating
                     onClick={(r) => rateOpp({ oppId: opp.id, rating: r })}

@@ -242,7 +242,7 @@ export function MultiSelect<FormSchema>({
     <Controller
       name={name}
       control={control}
-      render={({ field: { onChange, value }, fieldState }) => (
+      render={({ field: { onChange, value } }) => (
         <>
           <InputLabel id={`${name}-label`}>{label}</InputLabel>
           <Select

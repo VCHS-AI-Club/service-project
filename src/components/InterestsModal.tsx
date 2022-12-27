@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from "react";
+import { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { type RouterOutputs, trpc } from "../utils/trpc";
 import { Button } from "./ui";
@@ -15,8 +15,6 @@ const InterestsModal: React.FC<{
   setOpen: (open: boolean) => void;
 }> = ({ interests, open, setOpen }) => {
   console.log("interests", interests);
-
-  const cancelButtonRef = useRef(null);
 
   const formSchema = z.object({
     church: z.boolean(),
@@ -51,7 +49,6 @@ const InterestsModal: React.FC<{
     );
     // Parse interests array
     const interests = interestsSchema.parse({ interests: interestsArray });
-    console.log(interests);
 
     mutate(interests);
 
@@ -62,12 +59,7 @@ const InterestsModal: React.FC<{
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)}>
         <Transition.Root show={open} as={Fragment}>
-          <Dialog
-            as="div"
-            className="relative z-10"
-            initialFocus={cancelButtonRef}
-            onClose={setOpen}
-          >
+          <Dialog as="div" className="relative z-10" onClose={setOpen}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"

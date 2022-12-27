@@ -7,7 +7,6 @@ import {
   CalendarIcon,
   LinkIcon,
   MapPinIcon,
-  HomeIcon,
   BookOpenIcon,
   WrenchScrewdriverIcon,
   GlobeAsiaAustraliaIcon,
@@ -17,6 +16,7 @@ import {
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { interestsSchema } from "../../schemas";
 
 type Opp = RouterOutputs["opp"]["upcoming"][number];
 
@@ -100,7 +100,6 @@ export const OppCard: React.FC<{
     location,
     start,
     end,
-    isChurch,
     categories,
     contact,
     url,
@@ -117,10 +116,27 @@ export const OppCard: React.FC<{
     console.error("Dates do not match! ID:", id);
   }
 
+  const { interests: safeCategories } = interestsSchema.parse({
+    interests: categories.split(","),
+  });
+
   return (
-    <article className="rounded-xl bg-pink-200 shadow sm:bg-red-200 md:bg-orange-200 lg:bg-yellow-200 xl:bg-green-200 2xl:bg-blue-200">
+    <article
+      className={
+        "rounded-xl bg-white " +
+        (new_ && " border-2 border-indigo-500 shadow-sm shadow-indigo-500")
+      }
+    >
       <div className="m-4 flex items-center justify-between">
-        <H3>{title}</H3>
+        <div className="flex items-center gap-2">
+          <H3>{title} </H3>
+
+          {new_ && (
+            <span className="rounded-3xl bg-indigo-500 px-2 py-1 text-xs text-white">
+              NEW
+            </span>
+          )}
+        </div>
         {action}
       </div>
       <hr className="border-1 my-2 border-gray-300" />
@@ -140,8 +156,8 @@ export const OppCard: React.FC<{
             )}
           </div>
           <div className="flex gap-2">
-            {categories.split(",").map((category) => (
-              <CategoryPill type={category as any} key={category} /> // FIXME
+            {safeCategories.map((category) => (
+              <CategoryPill type={category} key={category} /> // FIXME
             ))}
           </div>
         </div>

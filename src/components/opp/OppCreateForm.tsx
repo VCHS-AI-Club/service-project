@@ -13,7 +13,7 @@ import {
   MultiSelect,
   TextInput,
 } from "../form";
-import { Button, Container } from "../ui";
+import { Button } from "../ui";
 
 // Google API doesn't export their type, so it's copied here
 type LibType = (

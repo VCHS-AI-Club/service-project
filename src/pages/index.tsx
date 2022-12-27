@@ -1,11 +1,9 @@
 import { type NextPage } from "next";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Head from "next/head";
-import Link from "next/link";
 import { Button } from "../components/ui";
 
 const Home: NextPage = () => {
-  const { data: session } = useSession();
   return (
     <>
       <Head>
