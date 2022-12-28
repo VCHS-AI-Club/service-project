@@ -1,3 +1,4 @@
+// TODO: revisit input method, maybe switch to pills
 import { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { type RouterOutputs, trpc } from "../utils/trpc";
@@ -14,8 +15,6 @@ const InterestsModal: React.FC<{
   open: boolean;
   setOpen: (open: boolean) => void;
 }> = ({ interests, open, setOpen }) => {
-  console.log("interests", interests);
-
   const formSchema = z.object({
     church: z.boolean(),
     teaching: z.boolean(),
@@ -41,23 +40,31 @@ const InterestsModal: React.FC<{
   const { mutate } = trpc.user.updateInterests.useMutation();
 
   const onSubmit = async (data: FormSchema) => {
+    console.log("data", data);
     // Parse data from form
     const interestsData = interestFormSchema.safeParse(data);
+
+    console.log("data", interestsData);
     if (!interestsData.success) {
       console.error(interestsData.error);
       return;
     }
     // Filter out unchecked interests
-    const interestsArray = Object.keys(interestsData.data).filter(
-      (k) => interestsData[k as keyof typeof interestsData] === true
-    );
+    const interestsArray = Object.keys(interestsData.data).filter((k) => {
+      return interestsData.data[k as keyof typeof interestsData.data] === true;
+    });
+
+    console.log("2", interestsArray);
     // Parse interests array
     const interests = interestsSchema.safeParse({ interests: interestsArray });
 
+    console.log("3", interests);
     if (!interests.success) {
       console.error(interests.error);
       return;
     }
+
+    console.log("id", interests.data);
 
     mutate(interests.data);
 

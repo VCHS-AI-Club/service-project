@@ -195,6 +195,22 @@ export const oppRouter = router({
       },
     });
   }),
+  // Search for service opps
+  search: protectedProcedure
+    .input(z.object({ text: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { text } = input;
+      const opps = await ctx.prisma.opp.findMany({
+        where: {
+          OR: [
+            { title: { contains: text, mode: "insensitive" } },
+            { description: { contains: text, mode: "insensitive" } },
+          ],
+          deleted: false,
+        },
+      });
+      return opps;
+    }),
   // Use a suggestion model to predict the next opps for a user
   suggested: protectedProcedure.query(async ({ ctx }) => {
     const associations = await ctx.prisma.userOppAssociation.findMany({

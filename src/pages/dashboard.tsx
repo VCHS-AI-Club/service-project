@@ -86,8 +86,6 @@ export default function DashboardPage() {
   const rateOpp = trpc.opp.rate.useMutation({
     onMutate: (ratedOpp) => {
       utils.opp.userPast.setData(undefined, (oldData) => {
-        console.log("oldData", oldData);
-
         return oldData
           ? oldData.map((assoc) => {
               if (assoc.opp.id === ratedOpp.oppId) {

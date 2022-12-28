@@ -126,6 +126,7 @@ type TextInputProps<FormSchema> = {
   label: string;
   optional?: boolean;
   multiline?: boolean;
+  className?: string;
 };
 
 export function TextInput<FormSchema>({
@@ -133,6 +134,7 @@ export function TextInput<FormSchema>({
   name,
   multiline,
   optional = false,
+  className,
 }: TextInputProps<FormSchema>) {
   const { control } = useFormContext();
   return (
@@ -147,6 +149,7 @@ export function TextInput<FormSchema>({
           label={`${label} ${optional ? "(optional)" : ""}`}
           onChange={onChange}
           multiline={multiline}
+          className={className}
           error={!!error}
           ref={ref}
           onBlur={onBlur}
